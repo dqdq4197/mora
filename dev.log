@@ -2718,3 +2718,5 @@ Please retry in 4.032149789s.
  GET /api/analyze/keyword?q=%EA%B8%88%EB%A6%AC 500 in 7.7s (compile: 113ms, render: 7.6s)
  GET /api/cron/monitor 200 in 47s (compile: 159ms, render: 47s)
  GET / 200 in 61ms (compile: 4ms, render: 57ms)
+ GET / 200 in 190ms (compile: 112ms, render: 78ms)
+✓ Compiled in 45ms
