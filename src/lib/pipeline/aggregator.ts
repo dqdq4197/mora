@@ -1,6 +1,8 @@
 import { FetcherResult, FetcherFunction, NewsItem } from './types';
 import { fetchYahooFinance } from './fetchers/yahoo';
 import { fetchReddit } from './fetchers/reddit';
+import { fetchCnbc } from './fetchers/cnbc';
+import { fetchMarketWatch } from './fetchers/marketwatch';
 import { fetchMockSources } from './fetchers/mock';
 
 /**
@@ -34,6 +36,8 @@ export async function aggregateAllNews(): Promise<{ items: NewsItem[], errors: s
   const fetchers: { name: string, fn: FetcherFunction }[] = [
     { name: 'Yahoo Finance', fn: fetchYahooFinance },
     { name: 'Reddit', fn: fetchReddit },
+    { name: 'CNBC', fn: fetchCnbc },
+    { name: 'MarketWatch', fn: fetchMarketWatch },
     { name: 'Mock Sources', fn: fetchMockSources }
   ];
 

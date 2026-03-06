@@ -2,6 +2,7 @@ import { generateObject } from 'ai';
 import { google } from '@ai-sdk/google';
 import { z } from 'zod';
 import { NewsItem } from './types';
+import { AI_MODEL } from '../config';
 
 // Truncate function to avoid Token Limit issues
 function truncateContext(text: string, maxLength: number = 8000): string {
@@ -15,40 +16,95 @@ export async function analyzeNews(newsItems: NewsItem[]) {
     .map(item => `[${item.source} - ${item.type.toUpperCase()}] ${item.title} (URL: ${item.link})\n${item.summary || ''}`)
     .join('\n\n');
     
-  const safeContext = truncateContext(rawContext, 25000); // Increased safe context slightly for multiple trends.
+  const safeContext = truncateContext(rawContext, 40000);
 
   // 2. Call Gemini
   const { object: report } = await generateObject({
-    model: google('gemini-2.5-flash'),
+    model: google(AI_MODEL),
     schema: z.object({
-      summary: z.string().describe("현재 시장 전체를 관통하는 AI 핵심 요약문 (한글, 약 2-3문장으로 구성된 통찰력 있는 요약)"),
-      overallSentiment: z.enum(["bull", "bear", "neutral"]).describe("시장 전체의 전반적인 투자 심리"),
+      summary: z.string().describe("현재 시장 상황을 경제에 관심 있는 고등학생 수준으로 명료하게 요약한 문장 (한글, 2-3문장)"),
+      overallSentiment: z.enum(["bull", "bear", "neutral"]).describe("시장 전체의 전반적인 분위기"),
       trends: z.array(z.object({
-        keyword: z.string().describe("트렌드를 대표하는 핵심 키워드 (예: '중동 분쟁 심화', 'AI 반도체 랠리')"),
-        headline: z.string().describe("이슈를 잘 나타내는 한 줄 헤드라인"),
-        description: z.string().describe("현재 트렌드에 대한 구체적인 설명 및 시장에 미치는 영향 (한글)"),
-        sentiment: z.enum(["bull", "bear", "neutral"]).describe("이 특정 트렌드에 대한 시장의 심리"),
-        severity: z.enum(["high", "medium", "low"]).describe("시장에 미칠 영향의 심각도"),
-        beneficiaries: z.array(z.string()).describe("수혜가 예상되는 종목 리스트"),
-        victims: z.array(z.string()).describe("피해가 예상되는 종목 리스트"),
+        keyword: z.string().describe("트렌드를 대표하는 핵심 키워드"),
+        headline: z.string().describe("이슈를 명확하게 짚어내는 헤드라인"),
+        description: z.string().describe("이슈에 대한 구체적인 설명 (전문 용어를 적절히 풀어서 설명하되, 지적인 톤 유지, 한글)"),
+        sentiment: z.enum(["bull", "bear", "neutral"]).describe("이 트렌드에 대한 투심"),
+        timeline: z.enum(["short-term", "long-term"]).describe("이 트렌드의 지속 기간 (short-term: 실시간/주간, long-term: 월간/분기 이상)"),
+        severity: z.enum(["high", "medium", "low"]).describe("이 소식이 시장에 미치는 영향력"),
+        beneficiaries: z.array(z.string()).describe("수혜가 예상되는 기업이나 섹터"),
+        victims: z.array(z.string()).describe("타격이 예상되는 기업이나 섹터"),
         relatedStocks: z.array(z.object({
-          ticker: z.string().describe("주식 티커 심볼 (예: 'AAPL', 'NVDA')"),
+          ticker: z.string().describe("티커"),
           name: z.string().describe("기업명"),
-          description: z.string().describe("이 트렌드와 관련있는 이유를 간략히 설명")
-        })).max(3).describe("이 트렌드와 직결된 가장 대표적인 관련 주식 (최대 3개)"),
+          description: z.string().describe("트렌드와 연결되는 구체적 이유")
+        })).max(3).describe("관련 주식 3개"),
         retailSentiment: z.object({
-          status: z.enum(["bull", "bear", "neutral"]).describe("개인 투자자의 심리 상태"),
-          summary: z.string().describe("COMMUNITY 데이터를 기반으로 한 개인 투자자 반응 요약")
+          status: z.enum(["bull", "bear", "neutral"]).describe("개인 투자자 심리"),
+          summary: z.string().describe("커뮤니티 반응 요약")
         }),
         institutionalSentiment: z.object({
-          status: z.enum(["bull", "bear", "neutral"]).describe("기관 및 제도권의 심리 상태"),
-          summary: z.string().describe("MEDIA 데이터를 기반으로 한 기관/월가의 전문가 시각 요약")
+          status: z.enum(["bull", "bear", "neutral"]).describe("기관/전문가 심리"),
+          summary: z.string().describe("뉴스/보고서 기반 전문가 시각 요약")
         }),
-        sourceUrls: z.array(z.string()).describe("이 트렌드를 도출하는 데 근거가 된 뉴스나 게시물의 URL 목록 (본문에 제공된 URL들만 포함)")
-      })).min(3).max(5).describe("현재 시장을 주도하는 가장 핵심적인 트렌드 3~5개")
+        sourceUrls: z.array(z.string()).describe("근거 URL 리스트")
+      })).min(4).max(6).describe("주요 트렌드 4~6개")
     }),
-    prompt: `아래는 실시간 금융/경제 뉴스 및 커뮤니티 데이터입니다. 각 데이터는 출처(MEDIA/COMMUNITY 태그)와 원본 URL 링크를 포함하고 있습니다.\n\n${safeContext}\n\n이 데이터들을 종합하여 다음을 수행하세요:\n1. 현재 전체 시장 상황을 한 문장으로 요약하고(summary), 전반적인 투심(overallSentiment)을 결정하세요.\n2. 현재 시장을 지배하는 **가장 중요한 핵심 트렌드 3~5개**를 추출하세요. \n각 트렌드를 분석할 때, 'MEDIA' 성향과 'COMMUNITY' 성향의 시각 차이를 명확히 분리하고, 이 트렌드 분석에 실질적 근거가 된 데이터들의 URL 리스트를 정확히 매핑하여 'sourceUrls' 배열에 포함시키세요.`
+    prompt: `아래는 실시간 금융/경제 뉴스 및 커뮤니티 데이터입니다.\n\n${safeContext}\n\n이 데이터들을 종합하여 다음 지침에 따라 분석하세요:\n\n**[지침 1: 언어 수준 - 지적인 고등학생 레벨]**\n- 경제 신문 칼럼처럼 명확하고 논리적인 문체를 사용하세요.\n- 너무 유치한 표현은 지양하되, 어려운 한자어나 전문 용어는 독자가 이해하기 쉽게 문맥 속에서 풀어서 써주세요.\n\n**[지침 2: 시계열 분석 (Short-term vs Long-term)]**\n- **short-term (단기/실시간)**: 바로 오늘 또는 이번 주에 터진 새로운 소식, 실시간 가격 변동, 갑작스러운 사건 등을 최우선으로 다룹니다. 반드시 가장 최신 데이터를 반영하세요.\n- **long-term (장기/전략)**: 산업의 구조적 변화, 거시 경제 정책, 기술 트렌드 등 긴 호흡의 변화를 다룹니다.\n\n1. 전체 시장 상황 요약(summary)과 전반적 투심(overallSentiment)을 결정하세요.\n2. 핵심 트렌드 4~6개를 추출하여 위 지침에 따라 상세히 분석하세요.`
   });
 
   return report;
+}
+
+export async function analyzeKeyword(query: string, newsItems: NewsItem[]) {
+  const hasData = newsItems.length > 0;
+  const rawContext = hasData 
+    ? newsItems.map(item => `[${item.source}] ${item.title}\n${item.summary || ''}`).join('\n\n')
+    : "실시간 뉴스나 커뮤니티 데이터를 찾지 못했습니다.";
+    
+  const safeContext = truncateContext(rawContext, 30000);
+
+  const { object: analysis } = await generateObject({
+    model: google(AI_MODEL),
+    schema: z.object({
+      keyword: z.string(),
+      summary: z.string().describe("해당 키워드에 대한 상황 요약. (한글)"),
+      shortTermOutlook: z.object({
+        view: z.enum(["bull", "bear", "neutral"]),
+        description: z.string().describe("단기적 관점")
+      }),
+      longTermOutlook: z.object({
+        view: z.enum(["bull", "bear", "neutral"]),
+        description: z.string().describe("장기적 관점")
+      }),
+      keyPoints: z.array(z.string()).describe("분석 포인트 3-4개"),
+      sentimentScore: z.number().min(0).max(100),
+      sources: z.array(z.object({
+        title: z.string(),
+        url: z.string()
+      })).max(5).describe("근거 자료. 데이터가 없으면 빈 배열 []"),
+      disclaimer: z.string().describe("안내 문구. 실시간 데이터가 충분하면 빈 문자열, 부족하면 안내 메시지 작성.")
+    }),
+    prompt: `당신은 전문 금융 분석가입니다. 키워드 "${query}"에 대해 분석하세요.\n\n` + 
+      `**[데이터 상황]**\n${hasData ? '실시간 데이터가 존재합니다.' : '실시간 데이터가 부족합니다. 당신의 배경지식을 활용하세요.'}\n\n` +
+      `**[컨텍스트]**\n${safeContext}\n\n` +
+      `**[지침]**\n` +
+      `- 모든 필드(summary, shortTermOutlook, longTermOutlook, keyPoints, sentimentScore, sources, disclaimer)를 반드시 채우세요.\n` +
+      `- 실시간 뉴스 데이터가 부족하여 본인의 지식을 사용할 경우, disclaimer 필드에 "최근 뉴스 데이터가 부족하여 일반적인 시장 정보를 바탕으로 분석되었습니다."라고 명시하세요.\n` +
+      `- 데이터가 충분하면 disclaimer를 빈 문자열("")로 두세요.\n` +
+      `- 언어는 고등학생 수준의 명료한 한글을 사용하세요.`
+  });
+
+  return analysis;
+}
+
+export async function translateQuery(query: string): Promise<string> {
+  const { object } = await generateObject({
+    model: google(AI_MODEL),
+    schema: z.object({
+      englishQuery: z.string().describe("영문 검색어 (예: '현대 제철' -> 'Hyundai Steel', '금리' -> 'interest rates')")
+    }),
+    prompt: `다음 키워드를 글로벌 금융/경제 뉴스 검색에 최적화된 영문 키워드로 번역하세요: "${query}"`
+  });
+
+  return object.englishQuery;
 }

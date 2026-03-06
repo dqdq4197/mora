@@ -7,12 +7,19 @@ import { analyzeNews } from '@/lib/pipeline/analyzer';
 export async function GET(req: Request) {
   try {
     // Basic Security: Vercel Cron sends a CRON_SECRET auth header.
-    // We check if process.env.CRON_SECRET exists to validate it.
     const authHeader = req.headers.get('authorization');
-    if (
-      process.env.CRON_SECRET &&
-      authHeader !== `Bearer ${process.env.CRON_SECRET}`
-    ) {
+    const referer = req.headers.get('referer');
+    const host = req.headers.get('host');
+    
+    // Allow if:
+    // 1. Valid CRON_SECRET is provided
+    // 2. Request comes from the same origin (Internal Refresh button)
+    // 3. Local development and no secret is set
+    const isCron = process.env.CRON_SECRET && authHeader === `Bearer ${process.env.CRON_SECRET}`;
+    const isInternal = referer && host && referer.includes(host);
+    const isLocal = !process.env.CRON_SECRET;
+
+    if (!isCron && !isInternal && !isLocal) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 

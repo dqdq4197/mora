@@ -11,6 +11,7 @@ export interface Trend {
   headline: string;
   description: string;
   severity: "high" | "medium" | "low";
+  timeline: "short-term" | "long-term";
   beneficiaries: string[];
   victims: string[];
   relatedStocks?: {
