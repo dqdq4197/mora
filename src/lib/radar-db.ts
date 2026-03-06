@@ -26,11 +26,14 @@ export interface Trend {
     status: "bull" | "bear" | "neutral";
     summary: string;
   };
+  sentiment: "bull" | "bear" | "neutral";
   sourceUrls: string[];
 }
 
 export interface TrendReport {
   id: string;
+  summary: string;
+  overallSentiment: "bull" | "bear" | "neutral";
   trends: Trend[];
   detectedAt: string;
 }

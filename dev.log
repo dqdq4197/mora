@@ -165,3 +165,141 @@ Cron triggered: Scanning sources for breaking macro events...
  GET / 200 in 1681ms (compile: 7ms, render: 1674ms)
  GET / 200 in 1604ms (compile: 8ms, render: 1596ms)
  GET / 200 in 1597ms (compile: 5ms, render: 1592ms)
+ GET / 200 in 1631ms (compile: 15ms, render: 1616ms)
+⨯ TypeError: Cannot read properties of undefined (reading 'overallSentiment')
+    at Hero (src/components/Hero.tsx:5:23)
+  3 |
+  4 | export function Hero({ data }: { data: MarketState }) {
+> 5 |   const isBull = data.overallSentiment === 'bull';
+    |                       ^
+  6 |   const isBear = data.overallSentiment === 'bear';
+  7 |   
+  8 |   const formatDate = (isoString: string) => { {
+  digest: '1671106052'
+}
+⨯ TypeError: Cannot read properties of undefined (reading 'sentiment')
+    at ThemeCard (src/components/ThemeCard.tsx:8:24)
+   6 |
+   7 | export function ThemeCard({ theme }: { theme: Theme }) {
+>  8 |   const isBull = theme.sentiment === 'bull';
+     |                        ^
+   9 |   const isBear = theme.sentiment === 'bear';
+  10 |   const isNeutral = theme.sentiment === 'neutral';
+  11 | {
+  digest: '2119666758'
+}
+⨯ TypeError: Cannot read properties of undefined (reading 'sentiment')
+    at ThemeCard (src/components/ThemeCard.tsx:8:24)
+   6 |
+   7 | export function ThemeCard({ theme }: { theme: Theme }) {
+>  8 |   const isBull = theme.sentiment === 'bull';
+     |                        ^
+   9 |   const isBear = theme.sentiment === 'bear';
+  10 |   const isNeutral = theme.sentiment === 'neutral';
+  11 | {
+  digest: '2119666758'
+}
+⨯ TypeError: Cannot read properties of undefined (reading 'sentiment')
+    at ThemeCard (src/components/ThemeCard.tsx:8:24)
+   6 |
+   7 | export function ThemeCard({ theme }: { theme: Theme }) {
+>  8 |   const isBull = theme.sentiment === 'bull';
+     |                        ^
+   9 |   const isBear = theme.sentiment === 'bear';
+  10 |   const isNeutral = theme.sentiment === 'neutral';
+  11 | {
+  digest: '2119666758'
+}
+⨯ TypeError: Cannot read properties of undefined (reading 'sentiment')
+    at ThemeCard (src/components/ThemeCard.tsx:8:24)
+   6 |
+   7 | export function ThemeCard({ theme }: { theme: Theme }) {
+>  8 |   const isBull = theme.sentiment === 'bull';
+     |                        ^
+   9 |   const isBear = theme.sentiment === 'bear';
+  10 |   const isNeutral = theme.sentiment === 'neutral';
+  11 | {
+  digest: '2119666758'
+}
+ GET / 200 in 152ms (compile: 63ms, render: 89ms)
+⨯ TypeError: Cannot read properties of undefined (reading 'sentiment')
+    at ThemeCard (src/components/ThemeCard.tsx:8:24)
+   6 |
+   7 | export function ThemeCard({ theme }: { theme: Theme }) {
+>  8 |   const isBull = theme.sentiment === 'bull';
+     |                        ^
+   9 |   const isBear = theme.sentiment === 'bear';
+  10 |   const isNeutral = theme.sentiment === 'neutral';
+  11 | {
+  digest: '2119666758'
+}
+⨯ TypeError: Cannot read properties of undefined (reading 'sentiment')
+    at ThemeCard (src/components/ThemeCard.tsx:8:24)
+   6 |
+   7 | export function ThemeCard({ theme }: { theme: Theme }) {
+>  8 |   const isBull = theme.sentiment === 'bull';
+     |                        ^
+   9 |   const isBear = theme.sentiment === 'bear';
+  10 |   const isNeutral = theme.sentiment === 'neutral';
+  11 | {
+  digest: '2119666758'
+}
+⨯ TypeError: Cannot read properties of undefined (reading 'sentiment')
+    at ThemeCard (src/components/ThemeCard.tsx:8:24)
+   6 |
+   7 | export function ThemeCard({ theme }: { theme: Theme }) {
+>  8 |   const isBull = theme.sentiment === 'bull';
+     |                        ^
+   9 |   const isBear = theme.sentiment === 'bear';
+  10 |   const isNeutral = theme.sentiment === 'neutral';
+  11 | {
+  digest: '2119666758'
+}
+⨯ TypeError: Cannot read properties of undefined (reading 'sentiment')
+    at ThemeCard (src/components/ThemeCard.tsx:8:24)
+   6 |
+   7 | export function ThemeCard({ theme }: { theme: Theme }) {
+>  8 |   const isBull = theme.sentiment === 'bull';
+     |                        ^
+   9 |   const isBear = theme.sentiment === 'bear';
+  10 |   const isNeutral = theme.sentiment === 'neutral';
+  11 | {
+  digest: '2119666758'
+}
+ GET / 200 in 259ms (compile: 38ms, render: 222ms)
+⨯ TypeError: Cannot read properties of undefined (reading 'map')
+    at StockList (src/components/StockList.tsx:11:15)
+   9 |   return (
+  10 |     <Accordion type="single" collapsible className="w-full space-y-2">
+> 11 |       {stocks.map((stock, idx) => {
+     |               ^
+  12 |         const isBeneficiary = stock.impact === 'beneficiary';
+  13 |         const isPositivePrice = (stock.priceChangePercent ?? 0) > 0;
+  14 |         const isNegativePrice = (stock.priceChangePercent ?? 0) < 0; {
+  digest: '713386220'
+}
+ GET / 200 in 210ms (compile: 37ms, render: 173ms)
+✓ Compiled in 84ms
+ GET / 200 in 609ms (compile: 90ms, render: 519ms)
+ GET / 200 in 99ms (compile: 52ms, render: 46ms)
+ GET / 200 in 247ms (compile: 4ms, render: 242ms)
+ GET / 200 in 80ms (compile: 4ms, render: 76ms)
+ POST /api/analyze 200 in 4.6s (compile: 4ms, render: 4.6s)
+Cron triggered: Scanning sources for breaking macro events...
+ GET /api/cron/monitor 200 in 37.0s (compile: 94ms, render: 36.9s)
+ GET / 200 in 195ms (compile: 6ms, render: 189ms)
+ GET / 200 in 89ms (compile: 3ms, render: 86ms)
+ GET / 200 in 101ms (compile: 56ms, render: 45ms)
+ GET / 200 in 99ms (compile: 52ms, render: 47ms)
+ GET / 200 in 98ms (compile: 50ms, render: 48ms)
+ GET / 200 in 103ms (compile: 56ms, render: 47ms)
+ GET / 200 in 66ms (compile: 30ms, render: 36ms)
+✓ Compiled in 47ms
+ GET / 200 in 112ms (compile: 58ms, render: 53ms)
+Cron triggered: Scanning sources for breaking macro events...
+✓ Compiled in 18ms
+ GET /api/cron/monitor 200 in 46s (compile: 118ms, render: 46s)
+ GET / 200 in 98ms (compile: 6ms, render: 92ms)
+Cron triggered: Scanning sources for breaking macro events...
+ GET /api/cron/monitor 200 in 45s (compile: 3ms, render: 45s)
+ GET / 200 in 74ms (compile: 34ms, render: 40ms)

@@ -30,11 +30,11 @@ export async function GET(req: Request) {
     }
 
     // 2. AI Analysis 
-    const trends = await analyzeNews(newsItems);
+    const reportData = await analyzeNews(newsItems);
 
     const finalReport = {
       id: Date.now().toString(),
-      trends,
+      ...reportData,
       detectedAt: new Date().toISOString()
     };
 

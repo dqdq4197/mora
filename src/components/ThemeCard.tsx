@@ -1,20 +1,20 @@
-import { Theme } from "@/lib/mockData";
+import { Trend } from "@/lib/radar-db";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StockList } from "./StockList";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
-export function ThemeCard({ theme }: { theme: Theme }) {
-  const isBull = theme.sentiment === 'bull';
-  const isBear = theme.sentiment === 'bear';
-  const isNeutral = theme.sentiment === 'neutral';
+export function ThemeCard({ trend }: { trend: Trend }) {
+  const isBull = trend.sentiment === 'bull';
+  const isBear = trend.sentiment === 'bear';
+  const isNeutral = trend.sentiment === 'neutral';
 
   return (
     <Card className="bg-slate-900/50 border-slate-800 flex flex-col h-full overflow-hidden transition-all hover:bg-slate-800/50">
       <CardHeader className="pb-4 border-b border-slate-800/50">
         <div className="flex justify-between items-start gap-4">
           <CardTitle className="text-xl text-white font-bold leading-tight">
-            {theme.title}
+            {trend.keyword}
           </CardTitle>
           <Badge 
             variant="secondary" 
@@ -28,11 +28,11 @@ export function ThemeCard({ theme }: { theme: Theme }) {
             {isBull && <TrendingUp className="w-3 h-3" />}
             {isBear && <TrendingDown className="w-3 h-3" />}
             {isNeutral && <Minus className="w-3 h-3" />}
-            <span className="uppercase text-xs tracking-wider">{theme.sentiment}</span>
+            <span className="uppercase text-xs tracking-wider">{trend.sentiment}</span>
           </Badge>
         </div>
         <CardDescription className="text-slate-400 mt-2 text-sm leading-relaxed">
-          {theme.description}
+          {trend.headline}
         </CardDescription>
       </CardHeader>
       
@@ -40,7 +40,7 @@ export function ThemeCard({ theme }: { theme: Theme }) {
         <div className="mb-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
           연관 종목 분석
         </div>
-        <StockList stocks={theme.stocks} />
+        {trend.relatedStocks && <StockList relatedStocks={trend.relatedStocks} beneficiaries={trend.beneficiaries} victims={trend.victims} />}
       </CardContent>
     </Card>
   );

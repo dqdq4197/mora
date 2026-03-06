@@ -1,9 +1,9 @@
-import { MarketState } from "@/lib/mockData";
+import { TrendReport } from "@/lib/radar-db";
 import { Badge } from "@/components/ui/badge";
 
-export function Hero({ data }: { data: MarketState }) {
-  const isBull = data.overallSentiment === 'bull';
-  const isBear = data.overallSentiment === 'bear';
+export function Hero({ report }: { report: TrendReport }) {
+  const isBull = report.overallSentiment === 'bull';
+  const isBear = report.overallSentiment === 'bear';
   
   const formatDate = (isoString: string) => {
     return new Intl.DateTimeFormat('ko-KR', {
@@ -26,12 +26,12 @@ export function Hero({ data }: { data: MarketState }) {
             Daily AI Insight
           </Badge>
           <span className="text-sm text-slate-500">
-            {formatDate(data.lastUpdated)} 업데이트
+            {formatDate(report.detectedAt)} 업데이트
           </span>
         </div>
         
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight">
-          {data.summary}
+        <h1 className="text-lg md:text-xl lg:text-2xl font-semibold tracking-tight text-slate-100 leading-relaxed max-w-4xl">
+          {report.summary}
         </h1>
         
         <div className="flex items-center gap-4 mt-2">
@@ -43,7 +43,7 @@ export function Hero({ data }: { data: MarketState }) {
                 <span className={`relative inline-flex rounded-full h-3 w-3 ${isBull ? 'bg-green-500' : isBear ? 'bg-red-500' : 'bg-slate-500'}`}></span>
               </span>
               <span className={`font-semibold uppercase tracking-wider ${isBull ? 'text-green-400' : isBear ? 'text-red-400' : 'text-slate-400'}`}>
-                {data.overallSentiment}
+                {report.overallSentiment}
               </span>
             </div>
           </div>
