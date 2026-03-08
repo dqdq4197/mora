@@ -47,3 +47,4 @@ dev.log
 mora-fetch.log
 test-logs.ts
 .radar_db.json
+mora-user-searches.json

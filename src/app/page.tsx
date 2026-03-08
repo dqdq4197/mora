@@ -43,8 +43,8 @@ async function DashboardContent() {
       
       {latestAlert && (
         <>
-          <BreakingAlert report={latestAlert} />
           <Hero report={latestAlert} />
+          <BreakingAlert report={latestAlert} />
           
           <section className="mt-8">
             <div className="mb-6 flex items-center justify-between">

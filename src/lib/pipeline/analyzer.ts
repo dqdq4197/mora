@@ -34,7 +34,11 @@ const TREND_SCHEMA = z.object({
     status: z.enum(["bull", "bear", "neutral"]).describe("기관/전문가 심리"),
     summary: z.string().describe("뉴스/보고서 기반 전문가 시각 요약")
   }),
-  sourceUrls: z.array(z.string()).min(5).max(15).describe("근거 자료 URL 리스트. 가급적 10개 이상 포함하세요.")
+  sourceUrls: z.array(z.string()).min(5).max(12).describe("근거 자료 URL 리스트. 가급적 10개 내외 포함.")
+});
+
+const BATCH_TREND_SCHEMA = z.object({
+  trends: z.array(TREND_SCHEMA).describe("분석된 트렌드 상세 리포트 리스트")
 });
 
 /**
@@ -46,26 +50,29 @@ async function identifyTrends(context: string) {
     schema: z.object({
       summary: z.string().describe("현재 시장 상황 요약 (한글, 2-3문장)"),
       overallSentiment: z.enum(["bull", "bear", "neutral"]),
-      trendKeywords: z.array(z.string()).min(3).max(6).describe("가장 중요한 핵심 트렌드 키워드 리스트")
+      trendKeywords: z.array(z.string()).min(4).max(6).describe("가장 중요한 핵심 트렌드 키워드 리스트 (최소 4개)")
     }),
-    prompt: `아래 시장 뉴스를 분석하여 현재 가장 중요한 트렌드 키워드 3~6개를 추출하고 시장 요약을 작성하세요.\n\n[데이터]\n${context}`
+    prompt: `아래 시장 뉴스를 분석하여 현재 가장 중요한 **서로 다른(distinct)** 트렌드 키워드 4~6개를 추출하고 시장 요약을 작성하세요.\n\n` +
+      `- 각 키워드는 서로 중복되거나 너무 포괄적이지 않아야 합니다 (예: '시장 변동성' 보다는 'AI 반도체 수요 폭증' 처럼 구체적으로).\n` +
+      `- 반드시 최소 4개의 서로 다른 테마를 찾아내세요.\n\n` +
+      `[데이터]\n${context}`
   });
   return summary;
 }
 
 /**
- * Stage 2: Deep-dive into a specific trend
+ * Stage 2: Deep-dive into specific trends (Batch)
  */
-async function detailTrend(keyword: string, context: string) {
-  const { object: trend } = await generateObject({
+async function detailTrendsBatch(keywords: string[], context: string) {
+  const { object } = await generateObject({
     model: google(AI_MODEL),
-    schema: TREND_SCHEMA,
-    prompt: `시장 데이터에서 키워드 "${keyword}"와 관련된 내용을 깊이 있게 분석하여 상세 리포트를 작성하세요.\n\n` +
-      `- 최대한 풍부한 설명과 많은 근거 URL(10개 이상 추천)을 포함하세요.\n` +
+    schema: BATCH_TREND_SCHEMA,
+    prompt: `시장 데이터에서 다음 키워드들(${keywords.join(', ')}) 각각에 대해 깊이 있게 분석하여 상세 리포트를 작성하세요.\n\n` +
+      `- 각 키워드별로 독립적인 상세 리포트(상세 설명, 근거 URL 10개 내외, 관련 주식 등)를 작성하세요.\n` +
       `- 지적인 고등학생이 읽기 좋은 명료한 한글로 작성하세요.\n\n` +
       `[데이터]\n${context}`
   });
-  return trend;
+  return object.trends;
 }
 
 export async function analyzeNews(newsItems: NewsItem[]) {
@@ -82,21 +89,23 @@ export async function analyzeNews(newsItems: NewsItem[]) {
     const { summary, overallSentiment, trendKeywords } = await identifyTrends(safeContext);
     console.log(`[Analyzer] Stage 1 Done. Identified: ${trendKeywords.join(', ')}`);
 
-    // 3. Stage 2: Detailed Analysis (Paced to avoid Rate Limits)
+    // 3. Stage 2: Detailed Analysis (Batch Processing to save API calls)
     const trends: any[] = [];
-    console.log(`[Analyzer] Stage 2: Analyzing ${trendKeywords.length} keywords...`);
-    
-    for (const keyword of trendKeywords) {
+    const BATCH_SIZE = 3;
+    console.log(`[Analyzer] Stage 2: Batch Analyzing ${trendKeywords.length} keywords (Batch Size: ${BATCH_SIZE})...`);
+
+    for (let i = 0; i < trendKeywords.length; i += BATCH_SIZE) {
+      const batch = trendKeywords.slice(i, i + BATCH_SIZE);
       try {
-        const trend = await detailTrend(keyword, safeContext);
-        if (trend) {
-          trends.push(trend);
-          console.log(`[Analyzer] ✅ Successfully analyzed: ${keyword}`);
+        const batchResults = await detailTrendsBatch(batch, safeContext);
+        if (batchResults && batchResults.length > 0) {
+          trends.push(...batchResults);
+          console.log(`[Analyzer] ✅ Successfully analyzed batch: ${batch.join(', ')}`);
         }
-        // Add a 500ms delay to stay within free tier RPM (15) limits
-        await sleep(500); 
+        // Small safety delay between batches
+        await sleep(1000); 
       } catch (e: any) {
-        console.warn(`[Analyzer] ❌ Detail analysis failed for: ${keyword}`, e?.message || e);
+        console.warn(`[Analyzer] ❌ Batch analysis failed for: ${batch.join(', ')}`, e?.message || e);
       }
     }
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, Loader2, TrendingUp, TrendingDown, Info, ExternalLink, X } from 'lucide-react';
+import { Search, Loader2, TrendingUp, TrendingDown, Info, ExternalLink, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +22,7 @@ export function SearchAnalysis() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showSources, setShowSources] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +48,7 @@ export function SearchAnalysis() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto mb-12">
+    <div className="w-full max-w-4xl mx-auto mb-2">
       <form onSubmit={handleSearch} className="relative group">
         <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
           {loading ? (
@@ -159,21 +160,30 @@ export function SearchAnalysis() {
               </section>
 
               <section>
-                <h4 className="text-sm font-bold text-muted-foreground mb-4 uppercase tracking-[0.2em]">Evidence Support</h4>
-                <div className="space-y-2">
-                  {result.sources.map((source, i) => (
-                    <a 
-                      key={i} 
-                      href={source.url} 
-                      target="_blank" 
-                      rel="noreferrer"
-                      className="flex items-center justify-between p-3 rounded-xl bg-background/60 border border-border hover:border-primary/40 hover:bg-secondary/50 transition-all group/link shadow-sm dark:shadow-none"
-                    >
-                      <span className="text-xs text-muted-foreground truncate max-w-[200px]">{source.title}</span>
-                      <ExternalLink className="w-3 h-3 text-muted-foreground/60 group-hover/link:text-primary transition-colors" />
-                    </a>
-                  ))}
-                </div>
+                <button 
+                  onClick={() => setShowSources(!showSources)}
+                  className="w-full flex items-center justify-between text-sm font-bold text-muted-foreground mb-4 uppercase tracking-[0.2em] hover:text-primary transition-colors group"
+                >
+                  Evidence Support
+                  {showSources ? <ChevronUp className="w-4 h-4 text-primary" /> : <ChevronDown className="w-4 h-4 group-hover:text-primary" />}
+                </button>
+                
+                {showSources && (
+                  <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                    {result.sources.map((source, i) => (
+                      <a 
+                        key={i} 
+                        href={source.url} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="flex items-center justify-between p-3 rounded-xl bg-background/60 border border-border hover:border-primary/40 hover:bg-secondary/50 transition-all group/link shadow-sm dark:shadow-none"
+                      >
+                        <span className="text-xs text-muted-foreground truncate max-w-[200px]">{source.title}</span>
+                        <ExternalLink className="w-3 h-3 text-muted-foreground/60 group-hover/link:text-primary transition-colors" />
+                      </a>
+                    ))}
+                  </div>
+                )}
               </section>
             </div>
           </div>
