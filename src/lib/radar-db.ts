@@ -5,7 +5,10 @@ import { Redis } from '@upstash/redis';
 // On Vercel, the only writable directory is /tmp, BUT it's not shared across functions.
 // Thus, we use Upstash Redis for production shared persistence.
 const isVercel = process.env.VERCEL === '1';
-const hasKV = !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+const UPSTASH_URL = (process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL || '')
+const UPSTASH_TOKEN = (process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN || '')
+
+const hasKV = !!(UPSTASH_URL && UPSTASH_TOKEN);
 
 const DB_PATH = isVercel 
   ? path.join('/tmp', '.radar_db.json')
@@ -15,7 +18,10 @@ const KV_KEY = 'latest_radar_report';
 const useKV = hasKV; // Use Redis whenever variables are present, even locally
 
 // Initialize Redis client
-const redis = hasKV ? Redis.fromEnv() : null;
+const redis = hasKV ? new Redis({
+  url: UPSTASH_URL!,
+  token: UPSTASH_TOKEN!,
+}) : null;
 
 export interface Trend {
   keyword: string;
@@ -51,28 +57,39 @@ export interface TrendReport {
 }
 
 export async function setLatestAlert(report: TrendReport | null) {
-  // 1. Sync to Vercel KV (Upstash) if in production and configured
+  console.log(`[RadarDB] setLatestAlert called. Report status: ${report ? 'Data exists' : 'NULL (deletion)'}`);
+  console.log(`[RadarDB] Redis Config: URL=${UPSTASH_URL ? 'PRESENT' : 'MISSING'}, Token=${UPSTASH_TOKEN ? 'PRESENT' : 'MISSING'}`);
+
+  // 1. Sync to Upstash Redis
   if (useKV && redis) {
     try {
       if (report) {
-        await redis.set(KV_KEY, report);
+        const result = await redis.set(KV_KEY, report);
+        console.log(`[RadarDB] ✅ Redis Write Success: ${result}`);
       } else {
         await redis.del(KV_KEY);
+        console.log(`[RadarDB] 🗑️ Redis Delete Success`);
       }
     } catch (kvError) {
-      console.error('Vercel KV Write Error:', kvError);
+      console.error('[RadarDB] ❌ Redis Write ERROR:', kvError);
     }
+  } else {
+    console.warn(`[RadarDB] ⚠️ Redis write skipped: hasKV=${hasKV}, useKV=${useKV}, redisObj=${!!redis}`);
   }
 
   // 2. Fallback/Local: Write to local filesystem
   try {
     if (report) {
-      fs.writeFileSync(DB_PATH, JSON.stringify(report));
+      fs.writeFileSync(DB_PATH, JSON.stringify(report, null, 2));
+      console.log(`[RadarDB] ✅ Local File Write Success: ${DB_PATH}`);
     } else {
-      if (fs.existsSync(DB_PATH)) fs.unlinkSync(DB_PATH);
+      if (fs.existsSync(DB_PATH)) {
+        fs.unlinkSync(DB_PATH);
+        console.log(`[RadarDB] 🗑️ Local File Delete Success`);
+      }
     }
   } catch (fsError) {
-    console.error('Local FS Write Error:', fsError);
+    console.error('[RadarDB] ❌ Local FS Write ERROR:', fsError);
   }
 }
 

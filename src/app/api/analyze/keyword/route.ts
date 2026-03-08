@@ -44,7 +44,16 @@ export async function GET(request: Request) {
 
     return NextResponse.json(analysis);
   } catch (error: any) {
-    console.error('Keyword analysis error:', error);
-    return NextResponse.json({ error: 'Analysis failed', details: error.message }, { status: 500 });
+    const errorMessage = error?.message || String(error);
+    const isQuotaError = errorMessage.toLowerCase().includes('quota') || 
+                        errorMessage.toLowerCase().includes('limit') || 
+                        error?.status === 429 ||
+                        error?.statusCode === 429;
+
+    return NextResponse.json({ 
+      error: isQuotaError ? 'AI Usage Limit Reached' : 'Analysis failed', 
+      details: errorMessage,
+      isQuotaError
+    }, { status: isQuotaError ? 429 : 500 });
   }
 }

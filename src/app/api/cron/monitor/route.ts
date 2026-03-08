@@ -40,9 +40,7 @@ export async function GET(req: Request) {
     const reportData = await analyzeNews(newsItems);
 
     const finalReport = {
-      id: Date.now().toString(),
-      ...reportData,
-      detectedAt: new Date().toISOString()
+      ...reportData
     };
 
     // 3. Save to DB 
