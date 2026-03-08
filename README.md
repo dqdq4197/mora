@@ -113,4 +113,3 @@ graph TD
 ## 📝 License
 
 Copyright © 2026 Mora. All rights reserved.
-이 프로젝트는 교육 및 포트폴리오 목적으로 제작되었습니다.
