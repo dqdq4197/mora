@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidateTag } from 'next/cache';
+import { revalidateTag, revalidatePath } from 'next/cache';
 import { setLatestAlert } from '@/lib/radar-db';
 import { aggregateAllNews } from '@/lib/pipeline/aggregator';
 import { analyzeNews } from '@/lib/pipeline/analyzer';
@@ -49,7 +49,8 @@ export async function GET(req: Request) {
     await setLatestAlert(finalReport);
 
     // 4. Force Next.js App Router Cache Revalidation
-    revalidateTag('market-data', "max" as any);
+    revalidateTag('market-data', 'max' as any);
+    revalidatePath('/');
 
     return NextResponse.json({ 
       success: true, 

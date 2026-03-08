@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { searchReddit, searchNews } from '@/lib/pipeline/fetchers/search';
 import { analyzeKeyword, translateQuery } from '@/lib/pipeline/analyzer';
+import { logSearchQuery } from '@/lib/radar-db';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -17,6 +18,9 @@ export async function GET(request: Request) {
     // 2. Translate query for better global search results
     const translatedQuery = await translateQuery(query);
     console.log(`Searching for: "${query}" (Translated: "${translatedQuery}")`);
+
+    // 3. Log to DB for persistent tracking
+    await logSearchQuery(query, translatedQuery);
 
     // 2. Fetch targeted data from multiple sources using both queries
     const [redditOrig, redditTrans, newsOrig, newsTrans] = await Promise.all([

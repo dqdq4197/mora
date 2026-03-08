@@ -19,7 +19,7 @@ export function RefreshButton() {
     });
 
     try {
-      const response = await fetch('/api/cron/monitor');
+      const response = await fetch('/api/cron/monitor', { cache: 'no-store' });
       const data = await response.json();
       
       if (data.success) {

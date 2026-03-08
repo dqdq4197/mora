@@ -17,12 +17,12 @@ importers:
       '@ai-sdk/react':
         specifier: ^3.0.118
         version: 3.0.118(react@19.2.3)(zod@4.3.6)
+      '@upstash/redis':
+        specifier: ^1.36.3
+        version: 1.36.3
       '@vercel/analytics':
         specifier: ^1.6.1
         version: 1.6.1(next@16.1.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react@19.2.3)
-      '@vercel/kv':
-        specifier: ^3.0.0
-        version: 3.0.0
       ai:
         specifier: ^6.0.116
         version: 6.0.116(zod@4.3.6)
@@ -1666,11 +1666,6 @@ packages:
         optional: true
       vue-router:
         optional: true
-
-  '@vercel/kv@3.0.0':
-    resolution: {integrity: sha512-pKT8fRnfyYk2MgvyB6fn6ipJPCdfZwiKDdw7vB+HL50rjboEBHDVBEcnwfkEpVSp2AjNtoaOUH7zG+bVC/rvSg==}
-    engines: {node: '>=14.6'}
-    deprecated: 'Vercel KV is deprecated. If you had an existing KV store, it should have moved to Upstash Redis which you will see under Vercel Integrations. For new projects, install a Redis integration from Vercel Marketplace: https://vercel.com/marketplace?category=storage&search=redis'
 
   '@vercel/oidc@3.1.0':
     resolution: {integrity: sha512-Fw28YZpRnA3cAHHDlkt7xQHiJ0fcL+NRcIqsocZQUSmbzeIKRpwttJjik5ZGanXP+vlA4SbTg+AbA3bP363l+w==}
@@ -5467,10 +5462,6 @@ snapshots:
     optionalDependencies:
       next: 16.1.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react: 19.2.3
-
-  '@vercel/kv@3.0.0':
-    dependencies:
-      '@upstash/redis': 1.36.3
 
   '@vercel/oidc@3.1.0': {}
 

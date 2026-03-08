@@ -1,15 +1,21 @@
 import fs from 'fs';
 import path from 'path';
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
 
 // On Vercel, the only writable directory is /tmp, BUT it's not shared across functions.
-// Thus, we use Vercel KV (Redis) for production shared persistence.
+// Thus, we use Upstash Redis for production shared persistence.
 const isVercel = process.env.VERCEL === '1';
+const hasKV = !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+
 const DB_PATH = isVercel 
   ? path.join('/tmp', '.radar_db.json')
   : path.join(process.cwd(), '.radar_db.json');
 
 const KV_KEY = 'latest_radar_report';
+const useKV = isVercel && hasKV;
+
+// Initialize Redis client
+const redis = hasKV ? Redis.fromEnv() : null;
 
 export interface Trend {
   keyword: string;
@@ -45,13 +51,13 @@ export interface TrendReport {
 }
 
 export async function setLatestAlert(report: TrendReport | null) {
-  // 1. Sync to Vercel KV if in production
-  if (isVercel) {
+  // 1. Sync to Vercel KV (Upstash) if in production and configured
+  if (useKV && redis) {
     try {
       if (report) {
-        await kv.set(KV_KEY, report);
+        await redis.set(KV_KEY, report);
       } else {
-        await kv.del(KV_KEY);
+        await redis.del(KV_KEY);
       }
     } catch (kvError) {
       console.error('Vercel KV Write Error:', kvError);
@@ -71,10 +77,10 @@ export async function setLatestAlert(report: TrendReport | null) {
 }
 
 export async function getLatestAlert(): Promise<TrendReport | null> {
-  // 1. Try Vercel KV first if in production
-  if (isVercel) {
+  // 1. Try Vercel KV (Upstash) first if in production and configured
+  if (useKV && redis) {
     try {
-      const report = await kv.get<TrendReport>(KV_KEY);
+      const report = await redis.get<TrendReport>(KV_KEY);
       if (report) return report;
     } catch (kvError) {
       console.error('Vercel KV Read Error:', kvError);
@@ -89,5 +95,39 @@ export async function getLatestAlert(): Promise<TrendReport | null> {
   } catch (fsError) {
     console.error('Local FS Read Error:', fsError);
     return null;
+  }
+}
+
+const SEARCH_LOG_KEY = 'mora_search_logs';
+const LOCAL_LOG_PATH = path.join(process.cwd(), 'mora-user-searches.json');
+
+export async function logSearchQuery(query: string, translatedQuery: string) {
+  const logEntry = {
+    query,
+    translatedQuery,
+    timestamp: new Date().toISOString()
+  };
+
+  // 1. Sync to Redis if configured
+  if (useKV && redis) {
+    try {
+      await redis.lpush(SEARCH_LOG_KEY, JSON.stringify(logEntry));
+      // Keep only last 1000 searches to manage storage
+      await redis.ltrim(SEARCH_LOG_KEY, 0, 999);
+    } catch (error) {
+      console.error('Redis Search Logging Error:', error);
+    }
+  }
+
+  // 2. Local Fallback (Append to JSON file)
+  try {
+    let logs = [];
+    if (fs.existsSync(LOCAL_LOG_PATH)) {
+      logs = JSON.parse(fs.readFileSync(LOCAL_LOG_PATH, 'utf-8'));
+    }
+    logs.unshift(logEntry);
+    fs.writeFileSync(LOCAL_LOG_PATH, JSON.stringify(logs.slice(0, 500), null, 2));
+  } catch (error) {
+    console.error('Local Search Logging Error:', error);
   }
 }
