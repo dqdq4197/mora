@@ -5,6 +5,8 @@ import { fetchCnbc } from './fetchers/cnbc';
 import { fetchMarketWatch } from './fetchers/marketwatch';
 import { fetchGoogleNews } from './fetchers/google_news';
 import { fetchMockSources } from './fetchers/mock';
+import { fetchInternationalNews } from './fetchers/international';
+import { fetchKoreanNews } from './fetchers/korean_news';
 
 import { logFetchActivity } from './logger';
 
@@ -45,6 +47,8 @@ export async function aggregateAllNews(): Promise<{ items: NewsItem[], errors: s
     { name: 'CNBC', fn: fetchCnbc },
     { name: 'MarketWatch', fn: fetchMarketWatch },
     { name: 'Google News', fn: fetchGoogleNews },
+    { name: 'International Media', fn: fetchInternationalNews },
+    { name: 'Korean News', fn: fetchKoreanNews },
     { name: 'Mock Sources', fn: fetchMockSources }
   ];
 

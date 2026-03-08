@@ -15,7 +15,7 @@ export function RefreshButton() {
     
     setIsRefreshing(true);
     const toastId = toast.loading('최신 시장 데이터를 분석하고 있습니다.', {
-      description: '1분 이상의 시간이 소요될 수 있습니다.'
+      description: '5분 이상의 시간이 소요될 수 있습니다.'
     });
 
     try {
