@@ -1,12 +1,20 @@
 import { NewsItem } from '../types';
 
-export async function fetchReddit(): Promise<NewsItem[]> {
-  const subreddits = ['investing', 'wallstreetbets', 'stocks', 'options', 'cryptocurrency', 'economy', 'finance', 'worldnews', 'technology', 'business'];
+export async function fetchReddit(): Promise<{ items: NewsItem[]; urls: string[] }> {
+  const subreddits = [
+    'investing', 'wallstreetbets', 'stocks', 'options', 'cryptocurrency', 
+    'economy', 'finance', 'worldnews', 'technology', 'business',
+    'stockmarket', 'dividends', 'etfs', 'personalfinance', 'pennystocks',
+    'algorithmictrading', 'securityanalysis', 'futurology', 'energy', 'ai'
+  ];
   const items: NewsItem[] = [];
+  const urls: string[] = [];
 
   for (const sub of subreddits) {
+    const url = `https://www.reddit.com/r/${sub}/hot.json?limit=40`;
+    urls.push(url);
     try {
-      const res = await fetch(`https://www.reddit.com/r/${sub}/hot.json?limit=40`, {
+      const res = await fetch(url, {
         headers: { 'User-Agent': 'MoraFinanceBot/1.0' },
         next: { revalidate: 3600 }
       });
@@ -39,5 +47,5 @@ export async function fetchReddit(): Promise<NewsItem[]> {
      throw new Error("Failed to fetch any data from Reddit.");
   }
 
-  return items;
+  return { items, urls };
 }

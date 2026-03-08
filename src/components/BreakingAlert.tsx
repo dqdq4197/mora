@@ -87,7 +87,7 @@ export function BreakingAlert({ report }: { report: TrendReport | null }) {
                       {alert.relatedStocks.map((stock, i) => (
                         <div key={i} className="flex flex-col">
                           <div className="flex items-baseline gap-2 mb-1">
-                            <span className="text-indigo-600 dark:text-indigo-300 font-bold text-sm bg-indigo-100 dark:bg-indigo-500/20 px-2 py-0.5 rounded text-xs">{stock.ticker}</span>
+                            <span className="text-indigo-600 dark:text-indigo-300 font-bold text-sm bg-indigo-100 dark:bg-indigo-500/20 px-2 py-0.5 rounded">{stock.ticker}</span>
                             <span className="text-slate-700 dark:text-slate-300 text-sm font-medium">{stock.name}</span>
                           </div>
                           <p className="text-xs text-slate-500 dark:text-slate-400 pl-1 border-l-2 border-indigo-200 dark:border-indigo-500/30">

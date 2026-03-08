@@ -3,10 +3,14 @@ import { NewsItem } from '../types';
 
 const parser = new Parser();
 
-export async function fetchMarketWatch(): Promise<NewsItem[]> {
+export async function fetchMarketWatch(): Promise<{ items: NewsItem[]; urls: string[] }> {
   const feeds = [
     { name: 'MarketWatch Top Stories', url: 'http://feeds.marketwatch.com/marketwatch/topstories/' },
-    { name: 'MarketWatch Market Pulse', url: 'http://feeds.marketwatch.com/marketwatch/marketpulse/' }
+    { name: 'MarketWatch Market Pulse', url: 'http://feeds.marketwatch.com/marketwatch/marketpulse/' },
+    { name: 'MarketWatch Stock Market News', url: 'http://feeds.marketwatch.com/marketwatch/stockmarketnews/' },
+    { name: 'MarketWatch Economy', url: 'http://feeds.marketwatch.com/marketwatch/economy/' },
+    { name: 'MarketWatch Bulletin', url: 'http://feeds.marketwatch.com/marketwatch/bulletins/' },
+    { name: 'MarketWatch IPO', url: 'http://feeds.marketwatch.com/marketwatch/ipo/' }
   ];
 
   const allItems: NewsItem[] = [];
@@ -16,7 +20,7 @@ export async function fetchMarketWatch(): Promise<NewsItem[]> {
       feeds.map(async (f) => {
         try {
           const feed = await parser.parseURL(f.url);
-          return feed.items.slice(0, 25).map((item: any) => ({
+          return feed.items.slice(0, 50).map((item: any) => ({
             source: f.name,
             type: 'media' as const,
             title: item.title ?? 'No title',
@@ -32,9 +36,9 @@ export async function fetchMarketWatch(): Promise<NewsItem[]> {
     );
 
     results.forEach(items => allItems.push(...items));
-    return allItems;
+    return { items: allItems, urls: feeds.map(f => f.url) };
   } catch (error: any) {
     console.error('MarketWatch fetch error:', error);
-    return [];
+    return { items: [], urls: [] };
   }
 }

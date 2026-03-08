@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export function RefreshButton() {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -13,19 +14,32 @@ export function RefreshButton() {
     if (isRefreshing) return;
     
     setIsRefreshing(true);
+    const toastId = toast.loading('최신 시장 데이터를 분석하고 있습니다.', {
+      description: '1분 이상의 시간이 소요될 수 있습니다.'
+    });
+
     try {
       const response = await fetch('/api/cron/monitor');
       const data = await response.json();
       
       if (data.success) {
+        toast.success('분석이 완료되었습니다!', {
+          id: toastId,
+          description: '새로운 리포트가 대시보드에 반영되었습니다.'
+        });
         // Refresh the server components data
         router.refresh();
       } else {
-        alert('데이터 갱신에 실패했습니다: ' + (data.error || data.message));
+        toast.error('데이터 갱신에 실패했습니다.', {
+          id: toastId,
+          description: data.error || data.message
+        });
       }
     } catch (error) {
       console.error('Refresh error:', error);
-      alert('네트워크 오류가 발생했습니다.');
+      toast.error('네트워크 오류가 발생했습니다.', {
+        id: toastId
+      });
     } finally {
       setIsRefreshing(false);
     }

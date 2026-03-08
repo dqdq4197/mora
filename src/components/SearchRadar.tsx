@@ -36,7 +36,7 @@ export function SearchRadar() {
 
   return (
     <Card className="w-full bg-slate-900/60 border-slate-800 shadow-2xl overflow-hidden mb-8">
-      <div className="p-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500" />
+      <div className="p-1.5 bg-linear-to-r from-indigo-500 via-purple-500 to-emerald-500" />
       <CardContent className="p-6 md:p-8">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">

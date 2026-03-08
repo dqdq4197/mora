@@ -10,8 +10,9 @@ export interface NewsItem {
 export interface FetcherResult {
   source: string;
   items: NewsItem[];
+  fetchedUrls: string[];
   success: boolean;
   error?: string;
 }
 
-export type FetcherFunction = () => Promise<NewsItem[]>;
+export type FetcherFunction = () => Promise<{ items: NewsItem[]; urls: string[] }>;

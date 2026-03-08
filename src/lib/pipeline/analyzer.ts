@@ -13,10 +13,10 @@ function truncateContext(text: string, maxLength: number = 8000): string {
 export async function analyzeNews(newsItems: NewsItem[]) {
   // 1. Prepare and Truncate context. Include URL for AI to map back to sources.
   const rawContext = newsItems
-    .map(item => `[${item.source} - ${item.type.toUpperCase()}] ${item.title} (URL: ${item.link})\n${item.summary || ''}`)
+    .map(item => `[${item.source} - ${new Date(item.pubDate).toLocaleString()}] ${item.title} (URL: ${item.link})\n${item.summary || ''}`)
     .join('\n\n');
     
-  const safeContext = truncateContext(rawContext, 40000);
+  const safeContext = truncateContext(rawContext, 150000);
 
   // 2. Call Gemini
   const { object: report } = await generateObject({
@@ -46,10 +46,10 @@ export async function analyzeNews(newsItems: NewsItem[]) {
           status: z.enum(["bull", "bear", "neutral"]).describe("기관/전문가 심리"),
           summary: z.string().describe("뉴스/보고서 기반 전문가 시각 요약")
         }),
-        sourceUrls: z.array(z.string()).describe("근거 URL 리스트")
+        sourceUrls: z.array(z.string()).min(10).describe("근거 자료 URL 리스트. 반드시 10개 이상의 서로 다른 URL을 포함하세요.")
       })).min(4).max(6).describe("주요 트렌드 4~6개")
     }),
-    prompt: `아래는 실시간 금융/경제 뉴스 및 커뮤니티 데이터입니다.\n\n${safeContext}\n\n이 데이터들을 종합하여 다음 지침에 따라 분석하세요:\n\n**[지침 1: 언어 수준 - 지적인 고등학생 레벨]**\n- 경제 신문 칼럼처럼 명확하고 논리적인 문체를 사용하세요.\n- 너무 유치한 표현은 지양하되, 어려운 한자어나 전문 용어는 독자가 이해하기 쉽게 문맥 속에서 풀어서 써주세요.\n\n**[지침 2: 시계열 분석 (Short-term vs Long-term)]**\n- **short-term (단기/실시간)**: 바로 오늘 또는 이번 주에 터진 새로운 소식, 실시간 가격 변동, 갑작스러운 사건 등을 최우선으로 다룹니다. 반드시 가장 최신 데이터를 반영하세요.\n- **long-term (장기/전략)**: 산업의 구조적 변화, 거시 경제 정책, 기술 트렌드 등 긴 호흡의 변화를 다룹니다.\n\n1. 전체 시장 상황 요약(summary)과 전반적 투심(overallSentiment)을 결정하세요.\n2. 핵심 트렌드 4~6개를 추출하여 위 지침에 따라 상세히 분석하세요.`
+    prompt: `아래는 실시간 금융/경제 뉴스 및 커뮤니티 데이터입니다. 수집된 데이터가 300~500개 이상으로 매우 방대하며, 가장 최신(Recency) 순서로 정렬되어 있습니다.\n\n${safeContext}\n\n이 데이터들을 종합하여 다음 지침에 따라 분석하세요:\n\n**[지침 1: 언어 수준 - 지적인 고등학생 레벨]**\n- 경제 신문 칼럼처럼 명확하고 논리적인 문체를 사용하세요.\n- 너무 유치한 표현은 지양하되, 어려운 한자어나 전문 용어는 독자가 이해하기 쉽게 문맥 속에서 풀어서 써주세요.\n\n**[지침 2: 시계열 분석 및 최신성 우선]**\n- 데이터 상단에 배치된 **가장 최신 소식(최근 몇 분~수 시간 내 발생)**을 최우선적으로 반영하세요.\n- **short-term (단기/실시간)**: 바로 오늘 또는 이번 주에 터진 새로운 소식, 실시간 가격 변동, 갑작스러운 사건 등을 최우선으로 다룹니다.\n- **long-term (장기/전략)**: 산업의 구조적 변화, 거시 경제 정책, 기술 트렌드 등 긴 호흡의 변화를 다룹니다.\n\n**[지침 3: 출처 투명성 극대화 (CRITICAL)]**\n- 수집된 데이터가 매우 많습니다. 각 트렌드별로 분석의 근거가 되는 **URL을 반드시 10개 이상** 포괄적으로 나열하세요.\n- 단순히 제목만 보지 말고, 제공된 Context 내에서 해당 트렌드와 조금이라도 연관된 모든 뉴스 링크를 찾아 포함시키세요.\n\n1. 전체 시장 상황 요약(summary)과 전반적 투심(overallSentiment)을 결정하세요.\n2. 핵심 트렌드 4~6개를 추출하여 위 지침에 따라 상세히 분석하세요.`
   });
 
   return report;
@@ -61,27 +61,27 @@ export async function analyzeKeyword(query: string, newsItems: NewsItem[]) {
     ? newsItems.map(item => `[${item.source}] ${item.title}\n${item.summary || ''}`).join('\n\n')
     : "실시간 뉴스나 커뮤니티 데이터를 찾지 못했습니다.";
     
-  const safeContext = truncateContext(rawContext, 30000);
+  const safeContext = truncateContext(rawContext, 150000);
 
   const { object: analysis } = await generateObject({
     model: google(AI_MODEL),
     schema: z.object({
       keyword: z.string(),
-      summary: z.string().describe("해당 키워드에 대한 상황 요약. (한글)"),
+      summary: z.string().describe("해당 키워드에 대한 상황 요약. (한글, 2-3문장)"),
       shortTermOutlook: z.object({
         view: z.enum(["bull", "bear", "neutral"]),
-        description: z.string().describe("단기적 관점")
+        description: z.string().describe("단기적 관점 (1주~1개월)")
       }),
       longTermOutlook: z.object({
         view: z.enum(["bull", "bear", "neutral"]),
-        description: z.string().describe("장기적 관점")
+        description: z.string().describe("장기적 관점 (3개월 이상)")
       }),
       keyPoints: z.array(z.string()).describe("분석 포인트 3-4개"),
       sentimentScore: z.number().min(0).max(100),
       sources: z.array(z.object({
         title: z.string(),
         url: z.string()
-      })).max(5).describe("근거 자료. 데이터가 없으면 빈 배열 []"),
+      })).min(5).describe("근거 자료. 풍부한 분석을 위해 최소 5개 이상, 가능한 많은 관련 URL을 포함하세요."),
       disclaimer: z.string().describe("안내 문구. 실시간 데이터가 충분하면 빈 문자열, 부족하면 안내 메시지 작성.")
     }),
     prompt: `당신은 전문 금융 분석가입니다. 키워드 "${query}"에 대해 분석하세요.\n\n` + 
@@ -89,9 +89,11 @@ export async function analyzeKeyword(query: string, newsItems: NewsItem[]) {
       `**[컨텍스트]**\n${safeContext}\n\n` +
       `**[지침]**\n` +
       `- 모든 필드(summary, shortTermOutlook, longTermOutlook, keyPoints, sentimentScore, sources, disclaimer)를 반드시 채우세요.\n` +
+      `- **최신성 우선**: 제공된 컨텍스트 중 가장 최신 뉴스를 우선적으로 반영하세요.\n` +
+      `- **출처 극대화**: 관련 있는 모든 뉴스 링크를 'sources' 필드에 최소 5개 이상 담으세요.\n` +
       `- 실시간 뉴스 데이터가 부족하여 본인의 지식을 사용할 경우, disclaimer 필드에 "최근 뉴스 데이터가 부족하여 일반적인 시장 정보를 바탕으로 분석되었습니다."라고 명시하세요.\n` +
       `- 데이터가 충분하면 disclaimer를 빈 문자열("")로 두세요.\n` +
-      `- 언어는 고등학생 수준의 명료한 한글을 사용하세요.`
+      `- 언어는 지적인 고등학생 수준의 명료하고 논리적인 한글을 사용하세요.`
   });
 
   return analysis;

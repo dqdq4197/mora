@@ -1,7 +1,7 @@
 import { NewsItem } from '../types';
 
-export async function fetchMockSources(): Promise<NewsItem[]> {
-  return [
+export async function fetchMockSources(): Promise<{ items: NewsItem[]; urls: string[] }> {
+  const items: NewsItem[] = [
     {
       source: 'Bloomberg (Mock)',
       type: 'media',
@@ -35,4 +35,5 @@ export async function fetchMockSources(): Promise<NewsItem[]> {
       summary: 'Everyone I know is suddenly a day trader buying 0DTE options. Huge retail buying pressure on memestocks today. #stonks',
     }
   ];
+  return { items, urls: ['#'] };
 }
