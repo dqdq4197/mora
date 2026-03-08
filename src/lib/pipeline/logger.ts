@@ -9,7 +9,11 @@ export function logFetchActivity(
   totalItems: number,
   sourceReports: { source: string; itemCount: number; urls: string[]; success: boolean; error?: string }[]
 ) {
-  const logFile = path.join(process.cwd(), 'mora-fetch.log');
+  const isVercel = process.env.VERCEL === '1';
+  const logFile = isVercel 
+    ? path.join('/tmp', 'mora-fetch.log')
+    : path.join(process.cwd(), 'mora-fetch.log');
+    
   const timestamp = new Date().toLocaleString();
   
   let logContent = `\n[${timestamp}] --- NEW FETCH SESSION ---\n`;

@@ -1,10 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 
-// Simulate Vercel KV or Database using a local file
-// In production, use @vercel/kv: kv.set('alert', data) / kv.get('alert')
-
-const DB_PATH = path.join(process.cwd(), '.radar_db.json');
+// On Vercel, the only writable directory is /tmp
+const isVercel = process.env.VERCEL === '1';
+const DB_PATH = isVercel 
+  ? path.join('/tmp', '.radar_db.json')
+  : path.join(process.cwd(), '.radar_db.json');
 
 export interface Trend {
   keyword: string;
@@ -40,10 +41,15 @@ export interface TrendReport {
 }
 
 export async function setLatestAlert(report: TrendReport | null) {
-  if (report) {
-    fs.writeFileSync(DB_PATH, JSON.stringify(report));
-  } else {
-    if (fs.existsSync(DB_PATH)) fs.unlinkSync(DB_PATH);
+  try {
+    if (report) {
+      fs.writeFileSync(DB_PATH, JSON.stringify(report));
+    } else {
+      if (fs.existsSync(DB_PATH)) fs.unlinkSync(DB_PATH);
+    }
+  } catch (error) {
+    console.error('Failed to write to radar database:', error);
+    // On Vercel, this might still fail if /tmp is full or other issues occur
   }
 }
 
