@@ -11,7 +11,10 @@ export async function GET(request: Request) {
   }
 
   try {
-    // 1. Translate query for better global search results
+    // 1. Log search activity for monitoring
+    console.log(`[USER_SEARCH] Query: "${query}" | Time: ${new Date().toLocaleString('ko-KR')}`);
+
+    // 2. Translate query for better global search results
     const translatedQuery = await translateQuery(query);
     console.log(`Searching for: "${query}" (Translated: "${translatedQuery}")`);
 
