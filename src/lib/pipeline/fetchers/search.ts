@@ -11,7 +11,9 @@ export async function searchReddit(query: string): Promise<NewsItem[]> {
   for (const sort of sorts) {
     try {
       const res = await fetch(`https://www.reddit.com/search.json?q=${encodeURIComponent(query)}&sort=${sort}&t=week&limit=15`, {
-        headers: { 'User-Agent': 'MoraFinanceBot/1.0' },
+        headers: { 
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+        },
         next: { revalidate: 0 }
       });
       

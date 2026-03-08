@@ -1,11 +1,12 @@
 import { NewsItem } from '../types';
 
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export async function fetchReddit(): Promise<{ items: NewsItem[]; urls: string[] }> {
   const subreddits = [
     'investing', 'wallstreetbets', 'stocks', 'options', 'cryptocurrency', 
     'economy', 'finance', 'worldnews', 'technology', 'business',
-    'stockmarket', 'dividends', 'etfs', 'personalfinance', 'pennystocks',
-    'algorithmictrading', 'securityanalysis', 'futurology', 'energy', 'ai'
+    'stockmarket', 'dividends', 'etfs', 'personalfinance', 'pennystocks'
   ];
   const items: NewsItem[] = [];
   const urls: string[] = [];
@@ -15,18 +16,23 @@ export async function fetchReddit(): Promise<{ items: NewsItem[]; urls: string[]
     urls.push(url);
     try {
       const res = await fetch(url, {
-        headers: { 'User-Agent': 'MoraFinanceBot/1.0' },
+        headers: { 
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+          'Accept': 'application/json'
+        },
         next: { revalidate: 3600 }
       });
-      if (!res.ok) {
-        throw new Error(`Reddit API returned ${res.status}`);
-      }
-      const json = await res.json();
       
+      if (!res.ok) {
+        console.warn(`[Reddit] r/${sub} returned ${res.status}`);
+        continue;
+      }
+      
+      const json = await res.json();
       const posts = json.data?.children || [];
+      
       for (const post of posts) {
         const data = post.data;
-        // Ignore stickied posts often used for daily threads
         if (data.stickied) continue;
 
         items.push({
@@ -39,12 +45,13 @@ export async function fetchReddit(): Promise<{ items: NewsItem[]; urls: string[]
         });
       }
     } catch (error: any) {
-      console.error(`Reddit ${sub} fetch error:`, error);
+      console.error(`[Reddit] r/${sub} fetch error:`, error.message);
     }
   }
 
+  // If we couldn't get anything, we warn but don't crash the whole pipeline
   if (items.length === 0) {
-     throw new Error("Failed to fetch any data from Reddit.");
+     console.error("[Reddit] Failed to fetch any data from Reddit across all subreddits.");
   }
 
   return { items, urls };

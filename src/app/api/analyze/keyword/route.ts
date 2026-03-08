@@ -23,14 +23,21 @@ export async function GET(request: Request) {
     await logSearchQuery(query, translatedQuery);
 
     // 2. Fetch targeted data from multiple sources using both queries
-    const [redditOrig, redditTrans, newsOrig, newsTrans] = await Promise.all([
+    const results = await Promise.allSettled([
       searchReddit(query),
       searchReddit(translatedQuery),
       searchNews(query),
       searchNews(translatedQuery)
     ]);
     
-    const combinedData = [...redditOrig, ...redditTrans, ...newsOrig, ...newsTrans];
+    // Extract items from successful fetches
+    const combinedData = results
+      .filter((r): r is PromiseFulfilledResult<any[]> => r.status === 'fulfilled')
+      .flatMap(r => r.value);
+
+    if (combinedData.length === 0) {
+      console.warn("No data found from any source for query:", query);
+    }
     
     // 3. Perform AI In-depth Analysis
     const analysis = await analyzeKeyword(query, combinedData);

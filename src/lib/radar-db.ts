@@ -12,7 +12,7 @@ const DB_PATH = isVercel
   : path.join(process.cwd(), '.radar_db.json');
 
 const KV_KEY = 'latest_radar_report';
-const useKV = isVercel && hasKV;
+const useKV = hasKV; // Use Redis whenever variables are present, even locally
 
 // Initialize Redis client
 const redis = hasKV ? Redis.fromEnv() : null;
