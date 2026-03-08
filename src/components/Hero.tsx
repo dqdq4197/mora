@@ -24,7 +24,7 @@ export function Hero({ report }: { report: TrendReport }) {
   };
 
   return (
-    <section className="relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 md:p-12 my-8 shadow-sm dark:shadow-none">
+    <section className="relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 md:p-12 my-4 shadow-sm dark:shadow-none">
       {/* Decorative gradients */}
       <div className={`absolute top-0 right-0 -mr-20 -mt-20 w-72 h-72 rounded-full blur-3xl opacity-10 dark:opacity-20 ${isBull ? 'bg-emerald-500' : isBear ? 'bg-rose-500' : 'bg-slate-400'}`} />
       <div className={`absolute bottom-0 left-0 -ml-20 -mb-20 w-72 h-72 rounded-full blur-3xl opacity-5 dark:opacity-10 ${isBull ? 'bg-teal-500' : isBear ? 'bg-orange-500' : 'bg-slate-300'}`} />

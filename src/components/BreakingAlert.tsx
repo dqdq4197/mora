@@ -6,7 +6,7 @@ export function BreakingAlert({ report }: { report: TrendReport | null }) {
   if (!report || !report.trends || report.trends.length === 0) return null;
 
   return (
-    <div className="space-y-6 mb-12">
+    <div className="space-y-6">
       <div className="flex items-center gap-3 mb-4">
         <div className="p-2 bg-red-500/10 dark:bg-red-500/20 rounded-full text-red-600 dark:text-red-400 animate-pulse">
           <AlertTriangle className="w-5 h-5" />
