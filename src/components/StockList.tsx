@@ -46,13 +46,13 @@ export function StockList({ relatedStocks, beneficiaries, victims }: StockListPr
           <AccordionItem 
             key={stock.ticker + idx} 
             value={stock.ticker}
-            className="border border-border dark:border-slate-800 rounded-lg px-3 bg-card dark:bg-slate-950/50 data-[state=open]:bg-accent/50 dark:data-[state=open]:bg-slate-900 data-[state=open]:border-accent-foreground/20 dark:data-[state=open]:border-slate-700 transition-colors shadow-sm dark:shadow-none"
+            className="border border-border dark:border-slate-800 rounded-xl px-4 bg-background dark:bg-slate-950/50 data-[state=open]:bg-primary/5 dark:data-[state=open]:bg-slate-900 data-[state=open]:border-primary/20 dark:data-[state=open]:border-slate-700 transition-all shadow-sm mb-2 last:mb-0"
           >
             <AccordionTrigger className="hover:no-underline py-3 px-1 text-left">
               <div className="flex items-center justify-between w-full pr-4">
                 <div className="flex items-center gap-3">
-                  <span className="font-bold text-foreground w-14 text-left">{stock.ticker}</span>
-                  <span className="text-sm text-muted-foreground hidden sm:inline-block w-24 text-left truncate">{stock.name}</span>
+                  <span className="font-bold text-foreground w-14 text-left group-data-[state=open]:text-primary transition-colors">{stock.ticker}</span>
+                  <span className="text-xs font-medium text-muted-foreground hidden sm:inline-block w-24 text-left truncate">{stock.name}</span>
                   <Badge 
                     variant="outline" 
                     className={`text-[10px] px-1.5 py-0 h-5 ${!isVictim ? 'border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10' : 'border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10'}`}
@@ -64,10 +64,10 @@ export function StockList({ relatedStocks, beneficiaries, victims }: StockListPr
             </AccordionTrigger>
             
             <AccordionContent className="pb-4 pt-1 px-1">
-              <div className="flex gap-2 items-start bg-primary/5 dark:bg-indigo-950/30 text-primary dark:text-indigo-200 p-3 rounded-md border border-primary/10 dark:border-indigo-500/20 text-sm leading-relaxed">
+              <div className="flex gap-3 items-start bg-primary/5 dark:bg-indigo-950/30 text-foreground/90 dark:text-indigo-200 p-4 rounded-xl border border-primary/10 dark:border-indigo-500/20 text-sm leading-relaxed shadow-inner">
                 <Sparkles className="w-4 h-4 text-primary dark:text-indigo-400 mt-0.5 shrink-0" />
                 <p>
-                  <span className="font-semibold text-primary dark:text-indigo-300 mr-2">이유:</span>
+                  <span className="font-bold text-primary dark:text-indigo-300 mr-2">Core Insight:</span>
                   {stock.description}
                 </p>
               </div>

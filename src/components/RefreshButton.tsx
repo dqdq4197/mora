@@ -38,7 +38,7 @@ export function RefreshButton() {
       onClick={handleRefresh} 
       disabled={isRefreshing}
       className={`
-        gap-2 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white transition-all
+        gap-2 border-border dark:border-slate-700 text-muted-foreground hover:bg-accent hover:text-foreground transition-all
         ${isRefreshing ? 'opacity-70' : ''}
       `}
     >

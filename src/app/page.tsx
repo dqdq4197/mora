@@ -24,9 +24,6 @@ export default async function Home() {
         <div className="flex items-center gap-3 md:gap-4">
           <ThemeToggle />
           <RefreshButton />
-          <Badge variant="outline" className="hidden sm:inline-flex border-indigo-500/30 text-indigo-500 dark:text-indigo-400">
-            Pro Dashboard
-          </Badge>
         </div>
       </header>
 

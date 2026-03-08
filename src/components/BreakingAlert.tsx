@@ -108,7 +108,9 @@ export function BreakingAlert({ report }: { report: TrendReport | null }) {
                         <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold mb-1 text-xs uppercase tracking-wider">
                           <Building className="w-3 h-3" /> 기관 (Media)
                           {alert.institutionalSentiment && (
-                            <span className={`ml-auto capitalize ${alert.institutionalSentiment.status === 'bull' ? 'text-emerald-600 dark:text-emerald-400' : alert.institutionalSentiment.status === 'bear' ? 'text-rose-600 dark:text-rose-400' : 'text-slate-500 dark:text-slate-400'}`}>{alert.institutionalSentiment.status}</span>
+                            <span className={`ml-auto font-bold ${alert.institutionalSentiment.status === 'bull' ? 'text-emerald-600 dark:text-emerald-400' : alert.institutionalSentiment.status === 'bear' ? 'text-rose-600 dark:text-rose-400' : 'text-slate-500 dark:text-slate-400'}`}>
+                              {alert.institutionalSentiment.status === 'bull' ? '상승' : alert.institutionalSentiment.status === 'bear' ? '하락' : '중립'}
+                            </span>
                           )}
                         </div>
                         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -124,7 +126,9 @@ export function BreakingAlert({ report }: { report: TrendReport | null }) {
                         <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400 font-semibold mb-1 text-xs uppercase tracking-wider">
                           <Users className="w-3 h-3" /> 개인 (Community)
                           {alert.retailSentiment && (
-                            <span className={`ml-auto capitalize ${alert.retailSentiment.status === 'bull' ? 'text-emerald-600 dark:text-emerald-400' : alert.retailSentiment.status === 'bear' ? 'text-rose-600 dark:text-rose-400' : 'text-slate-500 dark:text-slate-400'}`}>{alert.retailSentiment.status}</span>
+                            <span className={`ml-auto font-bold ${alert.retailSentiment.status === 'bull' ? 'text-emerald-600 dark:text-emerald-400' : alert.retailSentiment.status === 'bear' ? 'text-rose-600 dark:text-rose-400' : 'text-slate-500 dark:text-slate-400'}`}>
+                              {alert.retailSentiment.status === 'bull' ? '상승' : alert.retailSentiment.status === 'bear' ? '하락' : '중립'}
+                            </span>
                           )}
                         </div>
                         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">

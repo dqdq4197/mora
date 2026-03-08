@@ -51,8 +51,8 @@ export function Hero({ report }: { report: TrendReport }) {
                 <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isBull ? 'bg-emerald-400' : isBear ? 'bg-rose-400' : 'bg-slate-400'}`}></span>
                 <span className={`relative inline-flex rounded-full h-3 w-3 ${isBull ? 'bg-emerald-500' : isBear ? 'bg-rose-500' : 'bg-slate-500'}`}></span>
               </span>
-              <span className={`font-semibold uppercase tracking-wider ${isBull ? 'text-emerald-600 dark:text-emerald-400' : isBear ? 'text-rose-600 dark:text-rose-400' : 'text-slate-600 dark:text-slate-400'}`}>
-                {report.overallSentiment}
+              <span className={`font-bold tracking-wider ${isBull ? 'text-emerald-600 dark:text-emerald-400' : isBear ? 'text-rose-600 dark:text-rose-400' : 'text-slate-600 dark:text-slate-400'}`}>
+                {report.overallSentiment === 'bull' ? '상승' : report.overallSentiment === 'bear' ? '하락' : '중립'}
               </span>
             </div>
           </div>

@@ -9,8 +9,14 @@ export function ThemeCard({ trend }: { trend: Trend }) {
   const isBear = trend.sentiment === 'bear';
   const isNeutral = trend.sentiment === 'neutral';
 
+  const sentimentLabel = {
+    bull: '상승',
+    bear: '하락',
+    neutral: '중립'
+  }[trend.sentiment];
+
   return (
-    <Card className="bg-card/50 dark:bg-slate-900/50 border-border dark:border-slate-800 flex flex-col h-full overflow-hidden transition-all hover:bg-accent/50 dark:hover:bg-slate-800/50 backdrop-blur-sm">
+    <Card className="bg-card dark:bg-slate-900/50 border-border dark:border-slate-800 flex flex-col h-full overflow-hidden transition-all hover:shadow-lg hover:shadow-primary/5 dark:hover:bg-slate-800/50 backdrop-blur-sm border-2">
       <CardHeader className="pb-4 border-b border-border/50 dark:border-slate-800/50">
         <div className="flex justify-between items-start gap-4">
           <CardTitle className="text-xl text-foreground font-bold leading-tight">
@@ -28,16 +34,16 @@ export function ThemeCard({ trend }: { trend: Trend }) {
             {isBull && <TrendingUp className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />}
             {isBear && <TrendingDown className="w-3 h-3 text-rose-600 dark:text-rose-400" />}
             {isNeutral && <Minus className="w-3 h-3 text-muted-foreground" />}
-            <span className="uppercase text-xs tracking-wider">{trend.sentiment}</span>
+            <span className="font-bold text-xs tracking-wider">{sentimentLabel}</span>
           </Badge>
         </div>
-        <CardDescription className="text-muted-foreground mt-2 text-sm leading-relaxed">
+        <CardDescription className="text-muted-foreground mt-2 text-sm leading-relaxed font-medium">
           {trend.headline}
         </CardDescription>
       </CardHeader>
       
       <CardContent className="pt-4 flex-1">
-        <div className="mb-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <div className="mb-3 text-[10px] font-bold text-primary/60 uppercase tracking-widest">
           연관 종목 분석
         </div>
         {trend.relatedStocks && <StockList relatedStocks={trend.relatedStocks} beneficiaries={trend.beneficiaries} victims={trend.victims} />}
