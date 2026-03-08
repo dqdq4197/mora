@@ -4,15 +4,37 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export async function fetchReddit(): Promise<{ items: NewsItem[]; urls: string[] }> {
   const subreddits = [
-    'investing', 'wallstreetbets', 'stocks', 'options', 'cryptocurrency', 
-    'economy', 'finance', 'worldnews', 'technology', 'business',
-    'stockmarket', 'dividends', 'etfs', 'personalfinance', 'pennystocks'
+    // --- Core Investing ---
+    'investing', 'wallstreetbets', 'stocks', 'options', 'stockmarket',
+    'dividends', 'etfs', 'SecurityAnalysis', 'ValueInvesting', 'Daytrading',
+
+    // --- Macro & Economy ---
+    'economy', 'finance', 'Economics', 'worldnews', 'geopolitics',
+    'business', 'personalfinance',
+
+    // --- Sector: Tech & AI ---
+    'technology', 'artificial', 'MachineLearning', 'nvidia', 'Semiconductors',
+
+    // --- Sector: Crypto ---
+    'cryptocurrency', 'Bitcoin', 'defi', 'CryptoMarkets',
+
+    // --- Sector: Energy & Commodities ---
+    'energy', 'RenewableEnergy', 'Gold', 'oil',
+
+    // --- Sector: Real Estate ---
+    'RealEstate', 'realestateinvesting', 'REITs',
+
+    // --- Sector: Biotech & Healthcare ---
+    'Biotech', 'biotech_stocks',
+
+    // --- Asia / Korea Adjacent ---
+    'korea', 'japanfinance', 'AsianMarkets', 'chinastocksusa',
   ];
   const items: NewsItem[] = [];
   const urls: string[] = [];
 
   for (const sub of subreddits) {
-    const url = `https://www.reddit.com/r/${sub}/hot.json?limit=40`;
+    const url = `https://www.reddit.com/r/${sub}/hot.json?limit=15`;
     urls.push(url);
     try {
       const res = await fetch(url, {
@@ -33,7 +55,14 @@ export async function fetchReddit(): Promise<{ items: NewsItem[]; urls: string[]
       
       for (const post of posts) {
         const data = post.data;
+        // Skip stickied posts and low-quality posts (< 5 upvotes)
         if (data.stickied) continue;
+        if (data.score < 5) continue;
+
+        const flair = data.link_flair_text ? `[${data.link_flair_text}] ` : '';
+        const bodySnippet = data.selftext?.trim()
+          ? data.selftext.substring(0, 400) + '...'
+          : '';
 
         items.push({
           source: `Reddit (r/${sub})`,
@@ -41,7 +70,7 @@ export async function fetchReddit(): Promise<{ items: NewsItem[]; urls: string[]
           title: data.title,
           link: `https://reddit.com${data.permalink}`,
           pubDate: new Date(data.created_utc * 1000).toISOString(),
-          summary: data.selftext ? data.selftext.substring(0, 300) + '...' : '',
+          summary: `${flair}👍 ${data.score} upvotes | ${bodySnippet}`,
         });
       }
     } catch (error: any) {
