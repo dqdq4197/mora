@@ -50,11 +50,11 @@ async function identifyTrends(context: string) {
     schema: z.object({
       summary: z.string().describe("현재 시장 상황 요약 (한글, 2-3문장)"),
       overallSentiment: z.enum(["bull", "bear", "neutral"]),
-      trendKeywords: z.array(z.string()).min(4).max(6).describe("가장 중요한 핵심 트렌드 키워드 리스트 (최소 4개)")
+      trendKeywords: z.array(z.string()).min(4).max(6).describe("가장 중요한 핵심 트렌드 키워드 리스트 (4~6개)")
     }),
-    prompt: `아래 시장 뉴스를 분석하여 현재 가장 중요한 **서로 다른(distinct)** 트렌드 키워드 4~6개를 추출하고 시장 요약을 작성하세요.\n\n` +
-      `- 각 키워드는 서로 중복되거나 너무 포괄적이지 않아야 합니다 (예: '시장 변동성' 보다는 'AI 반도체 수요 폭증' 처럼 구체적으로).\n` +
-      `- 반드시 최소 4개의 서로 다른 테마를 찾아내세요.\n\n` +
+    prompt: `아래 시장 뉴스를 분석하여 현재 가장 중요한 **서로 다른(distinct)** 트렌드 키워드 6개를 추출하고 시장 요약을 작성하세요.\n\n` +
+      `- 각 키워드는 서로 중복되지 않는 구체적인 테마여야 합니다.\n` +
+      `- 뉴스 데이터가 풍부하므로 가급적 **6개의 테마**를 모두 찾아내세요.\n\n` +
       `[데이터]\n${context}`
   });
   return summary;
