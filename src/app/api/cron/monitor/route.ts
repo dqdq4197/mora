@@ -59,10 +59,19 @@ export async function GET(req: Request) {
     });
   } catch (error: any) {
     console.error("Scan error:", error);
+    
+    // Check for AI Quota or Rate Limit errors
+    const errorMessage = error?.message || String(error);
+    const isQuotaError = errorMessage.toLowerCase().includes('quota') || 
+                        errorMessage.toLowerCase().includes('limit') || 
+                        error?.status === 429 ||
+                        error?.statusCode === 429;
+
     return NextResponse.json({ 
       success: false, 
-      error: "Scan failed", 
-      details: error?.message || String(error) 
-    }, { status: 500 });
+      error: isQuotaError ? "AI Usage Limit Reached" : "Scan failed", 
+      details: errorMessage,
+      isQuotaError
+    }, { status: isQuotaError ? 429 : 500 });
   }
 }

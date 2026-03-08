@@ -30,10 +30,18 @@ export function RefreshButton() {
         // Refresh the server components data
         router.refresh();
       } else {
-        toast.error('데이터 갱신에 실패했습니다.', {
-          id: toastId,
-          description: data.error || data.message
-        });
+        if (data.isQuotaError) {
+          toast.warning('AI 사용량이 초과되었습니다.', {
+            id: toastId,
+            description: '현재 무료 사용량이 모두 소모되었습니다. 잠시 후 다시 시도하거나 관리자에게 문의하세요.',
+            duration: 5000
+          });
+        } else {
+          toast.error('데이터 갱신에 실패했습니다.', {
+            id: toastId,
+            description: data.error || data.message
+          });
+        }
       }
     } catch (error) {
       console.error('Refresh error:', error);
