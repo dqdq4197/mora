@@ -71,8 +71,8 @@ export function DataPipeline() {
   const marketwatchRef = useRef<HTMLDivElement>(null);
   const yahooRef = useRef<HTMLDivElement>(null);
   const reutersRef = useRef<HTMLDivElement>(null);
-  const bbcRef = useRef<HTMLDivElement>(null);
   const koreanRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   // Aggregator refs - col 2
   const newsAggRef = useRef<HTMLDivElement>(null);
@@ -119,10 +119,10 @@ export function DataPipeline() {
               <SourceNode ref={reutersRef}     label="Reuters / AP / BBC" color="text-gray-500" className="border-gray-500/40">
                 <BookOpen className="w-4 h-4 text-gray-500" />
               </SourceNode>
-              <SourceNode ref={bbcRef}         label="국내 뉴스 (연합·한경·매경)" color="text-rose-500" className="border-rose-500/40">
+              <SourceNode ref={koreanRef}        label="국내 뉴스 (연합·한경·매경)" color="text-rose-500" className="border-rose-500/40">
                 <Signal className="w-4 h-4 text-rose-500" />
               </SourceNode>
-              <SourceNode ref={undefined}      label="Search API"   color="text-emerald-500" className="border-emerald-500/40">
+              <SourceNode ref={searchRef}      label="Search API"   color="text-emerald-500" className="border-emerald-500/40">
                 <ScanSearch className="w-4 h-4 text-emerald-500" />
               </SourceNode>
             </div>
@@ -165,7 +165,7 @@ export function DataPipeline() {
                 >
                   <LayoutDashboard className="size-8 text-indigo-400" />
                 </div>
-                <span className="text-xs font-bold">실시간 분석</span>
+                <span className="text-xs font-bold">Mora Radar</span>
               </div>
             </div>
           </div>
@@ -177,7 +177,8 @@ export function DataPipeline() {
           <AnimatedBeam containerRef={containerRef} fromRef={marketwatchRef} toRef={financeAggRef}   curvature={5}   duration={4.5} gradientStartColor="#0ea5e9" gradientStopColor="#a855f7" />
           <AnimatedBeam containerRef={containerRef} fromRef={yahooRef}       toRef={financeAggRef}   curvature={20}  duration={4}   gradientStartColor="#a855f7" gradientStopColor="#a855f7" />
           <AnimatedBeam containerRef={containerRef} fromRef={reutersRef}     toRef={newsAggRef}      curvature={10}  duration={5}   gradientStartColor="#6b7280" gradientStopColor="#3b82f6" />
-          <AnimatedBeam containerRef={containerRef} fromRef={bbcRef}         toRef={newsAggRef}      curvature={30}  duration={4.8} gradientStartColor="#f43f5e" gradientStopColor="#3b82f6" />
+          <AnimatedBeam containerRef={containerRef} fromRef={koreanRef}       toRef={newsAggRef}      curvature={30}  duration={4.8} gradientStartColor="#f43f5e" gradientStopColor="#3b82f6" />
+          <AnimatedBeam containerRef={containerRef} fromRef={searchRef}       toRef={newsAggRef}      curvature={45}  duration={5.2} gradientStartColor="#10b981" gradientStopColor="#3b82f6" />
 
           {/* Aggregator → AI Beams */}
           <AnimatedBeam containerRef={containerRef} fromRef={newsAggRef}      toRef={aiRef} curvature={-35} duration={5} />
