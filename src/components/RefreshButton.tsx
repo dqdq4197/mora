@@ -65,7 +65,7 @@ export function RefreshButton() {
       `}
     >
       <RefreshCcw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-      {isRefreshing ? '데이터 분석 중...' : '지금 업데이트'}
+      {isRefreshing ? '데이터 분석 중...' : '실시간 업데이트'}
     </Button>
   );
 }
