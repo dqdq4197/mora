@@ -34,11 +34,83 @@ Mora는 매일 아침 수백 개의 글로벌 금융 뉴스, 커뮤니티 트렌
 
 ## 📡 Pipeline Architecture
 
-1.  **Fetch**: `aggregator.ts`가 멀티 쓰레드 방식으로 각 소스(Yahoo, CNBC 등)에서 데이터를 수집.
-2.  **Log**: `mora-fetch.log`에 호출된 모든 경로와 성공 여부를 상세히 기록.
-3.  **Analyze**: 수집된 수백 개의 기사 중 최신 15만 자를 선별하여 AI 모델에 전달.
-4.  **Save**: 분석된 정형 데이터를 로컬 DB에 저장하고 캐시를 무효화.
-5.  **Serve**: 사용자가 대시보드에 접속 시 최신 분석 결과와 상세 출처 리스트를 렌더링.
+매일 아침 7시(KST), Mora의 데이터 엔진이 어떻게 전 세계의 금융 정보를 수집하고 분석하여 사용자에게 전달하는지 보여주는 상세 아키텍처입니다.
 
+### 1. 파이프라인 흐름도 (Mermaid Diagram)
 
-```bash
+```mermaid
+graph TD
+    %% Trigger Section
+    subgraph Trigger ["1. Trigger (07:00 KST)"]
+        Cron[Vercel Cron Job] -->|GET Request| API["/api/cron/monitor"]
+    end
+
+    %% Fetching Section
+    subgraph Collection ["2. Data Collection (Aggregator)"]
+        API --> Aggregator[aggregator.ts]
+        Aggregator --> YF[Yahoo Finance RSS]
+        Aggregator --> CB[CNBC RSS]
+        Aggregator --> MW[MarketWatch RSS]
+        Aggregator --> GN[Google News RSS]
+        Aggregator --> RD[Reddit Hot JSON]
+        
+        YF -.-> Results[Raw News Items]
+        CB -.-> Results
+        MW -.-> Results
+        GN -.-> Results
+        RD -.-> Results
+    end
+
+    %% Processing Section
+    subgraph Processing ["3. AI Analysis (Gemini 2.0)"]
+        Results --> DataPrep[Deduplication & Sorting]
+        DataPrep --> Analyzer[analyzer.ts]
+        Analyzer --> Gemini[[Gemini 2.0 Flash/Pro]]
+        Gemini -->|Structured JSON| Report[Trend Report]
+    end
+
+    %% Storage Section
+    subgraph Persistence ["4. Persistence & Delivery"]
+        Report --> DB[radar-db.ts]
+        DB --> KV[(Vercel KV / Redis)]
+        DB --> Log[mora-fetch.log]
+        
+        KV -->|Sync| Page[Home Dashboard]
+        API -->|Revalidate| Cache[Next.js App Cache]
+    end
+
+    %% Styling
+    style Cron fill:#f96,stroke:#333,stroke-width:2px
+    style Gemini fill:#67c23a,stroke:#333,stroke-width:2px
+    style KV fill:#409eff,stroke:#333,stroke-width:2px
+    style API fill:#e6a23c,stroke:#333,stroke-width:2px
+```
+
+### 2. 단계별 상세 동작 원리
+
+#### 계층 1: 실행 (Trigger)
+- **Vercel Cron Job**: `vercel.json`에 정의된 스케줄(`0 22 * * *` UTC / 07:00 KST)에 따라 API 엔드포인트를 호출합니다.
+- **Security Check**: `CRON_SECRET` 서버측 환경 변수를 검증하여 권한이 없는 외부 접근을 차단합니다.
+
+#### 계층 2: 수집 (Data Collection)
+- **Multi-Threading**: 모든 데이터 소스(Yahoo, CNBC, Reddit 등)에 대해 병렬 비동기 요청을 수행하여 전체 수집 시간을 최소화합니다.
+- **Source Transparency**: 각 페처(Fetcher)는 뉴스 제목뿐만 아니라 **원본 URL**을 함께 수집하여 리포트의 신뢰도를 높입니다.
+
+#### 계층 3: 분석 (AI Processing)
+- **Deduplication**: 여러 매체에서 보도된 동일 뉴스를 링크 기반으로 제거하여 분석 노이즈를 줄입니다.
+- **Recency First**: 수집된 수백 개의 기사를 최신순으로 정렬하여, AI가 가장 최근 발생한 이벤트를 중심으로 분석하도록 유도합니다.
+- **Context Handling**: 약 15만 자의 풍부한 텍스트 데이터를 Gemini 모델에 전달하여 시장의 맥락(Context)을 완벽하게 파악합니다.
+
+#### 계층 4: 저장 및 서빙 (Persistence & Delivery)
+- **Vercel KV (Redis)**: 분석된 리포트를 전 세계 어디서든 즉시 접근 가능한 클라우드 데이터베이스에 실시간 동기화합니다.
+- **Cache Purge**: `revalidateTag`를 통해 Next.js 서버의 기존 캐시를 강제로 비우고, 사용자가 페이지를 새로고침할 때 즉시 최신 리포트가 보이도록 합니다.
+- **Logging**: 수집된 모든 URL 경로와 성공 로그를 상세히 기록(`mora-fetch.log`)하여 관리자가 모니터링할 수 있도록 합니다.
+
+---
+
+이 아키텍처는 데이터의 **신선도(Recency)**, **투명성(Transparency)**, 그리고 **안성성(Persistence)**을 목표로 설계되었습니다.
+
+## 📝 License
+
+Copyright © 2026 Mora. All rights reserved.
+이 프로젝트는 교육 및 포트폴리오 목적으로 제작되었습니다.
