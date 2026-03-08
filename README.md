@@ -4,8 +4,6 @@
 
 Mora는 매일 아침 수백 개의 글로벌 금융 뉴스, 커뮤니티 트렌드, 경제 데이터를 자동으로 수집하고 AI를 통해 분석하여 투자의 통찰력을 제공하는 **지능형 시장 모니터링 플랫폼**입니다.
 
-![Mora Favicon](https://raw.githubusercontent.com/username/repo/main/src/app/icon.png)
-
 ## 🌟 Key Features
 
 ### 1. 전방위적 데이터 수집 (5x News Aggregator)
@@ -42,34 +40,5 @@ Mora는 매일 아침 수백 개의 글로벌 금융 뉴스, 커뮤니티 트렌
 4.  **Save**: 분석된 정형 데이터를 로컬 DB에 저장하고 캐시를 무효화.
 5.  **Serve**: 사용자가 대시보드에 접속 시 최신 분석 결과와 상세 출처 리스트를 렌더링.
 
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 20+ 
-- pnpm 10+
-- Google Gemini API Key
-
-### Installation
 
 ```bash
-# Repository 클론
-git clone https://github.com/your-username/mora.git
-
-# 종속성 설치
-pnpm install
-
-# 환경 변수 설정 (.env.local)
-GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
-CRON_SECRET=your_secret_here
-```
-
-### Development
-
-```bash
-pnpm run dev
-```
-
-## 📝 License
-
-Copyright © 2026 Mora. All rights reserved.
-이 프로젝트는 교육 및 포트폴리오 목적으로 제작되었습니다.
