@@ -1,9 +1,29 @@
+"use client";
+
 import { TrendReport } from '@/lib/radar-db';
 import { AlertTriangle, TrendingUp, TrendingDown, Users, Building, Link as LinkIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useEffect, useState } from 'react';
 
 export function BreakingAlert({ report }: { report: TrendReport | null }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   if (!report || !report.trends || report.trends.length === 0) return null;
+
+  const formatDate = (isoString: string) => {
+    if (!mounted) return "";
+    return new Intl.DateTimeFormat('ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+    }).format(new Date(isoString));
+  };
 
   return (
     <div className="space-y-6">
@@ -12,7 +32,9 @@ export function BreakingAlert({ report }: { report: TrendReport | null }) {
           <AlertTriangle className="w-5 h-5" />
         </div>
         <h2 className="text-xl font-bold text-foreground">실시간 AI 포착 트렌드</h2>
-        <span className="text-muted-foreground text-sm ml-auto">{new Date(report.detectedAt).toLocaleString()} 기준</span>
+        <span className="text-muted-foreground text-sm ml-auto">
+          {mounted ? `${formatDate(report.detectedAt)} 기준` : ''}
+        </span>
       </div>
 
       {report.trends.map((alert, idx) => (
