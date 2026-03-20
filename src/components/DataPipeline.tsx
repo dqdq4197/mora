@@ -97,24 +97,15 @@ export function DataPipeline() {
           className="relative flex h-[560px] w-full items-center justify-center overflow-hidden rounded-3xl border border-border bg-background p-6 md:p-10 md:shadow-xl"
           ref={containerRef}
         >
-          <div className="flex size-full flex-row items-stretch justify-between gap-2 md:gap-6">
+          <div className="flex size-full flex-row items-stretch justify-evenly md:justify-between gap-2 md:gap-6">
             
-            {/* Col 1: Raw Sources */}
-            <div className="flex flex-col justify-center gap-3.5">
-              <SourceNode ref={redditRef}      label="Reddit"       color="text-orange-500"  className="border-orange-500/40">
-                <MessageCircle className="w-4 h-4 text-orange-500" />
-              </SourceNode>
+            {/* Col 1: Raw Sources (Hidden on Mobile) */}
+            <div className="hidden md:flex flex-col justify-center gap-3.5">
               <SourceNode ref={googleNewsRef}  label="Google News"  color="text-blue-500"    className="border-blue-500/40">
                 <Globe className="w-4 h-4 text-blue-500" />
               </SourceNode>
               <SourceNode ref={cnbcRef}        label="CNBC"         color="text-red-500"     className="border-red-500/40">
                 <Radio className="w-4 h-4 text-red-500" />
-              </SourceNode>
-              <SourceNode ref={marketwatchRef} label="MarketWatch"  color="text-sky-500"     className="border-sky-500/40">
-                <LineChart className="w-4 h-4 text-sky-500" />
-              </SourceNode>
-              <SourceNode ref={yahooRef}       label="Yahoo Finance" color="text-purple-500" className="border-purple-500/40">
-                <BarChart2 className="w-4 h-4 text-purple-500" />
               </SourceNode>
               <SourceNode ref={reutersRef}     label="Reuters / AP / BBC" color="text-gray-500" className="border-gray-500/40">
                 <BookOpen className="w-4 h-4 text-gray-500" />
@@ -124,6 +115,17 @@ export function DataPipeline() {
               </SourceNode>
               <SourceNode ref={searchRef}      label="Search API"   color="text-emerald-500" className="border-emerald-500/40">
                 <ScanSearch className="w-4 h-4 text-emerald-500" />
+              </SourceNode>
+              
+              <SourceNode ref={redditRef}      label="Reddit"       color="text-orange-500"  className="border-orange-500/40">
+                <MessageCircle className="w-4 h-4 text-orange-500" />
+              </SourceNode>
+              
+              <SourceNode ref={marketwatchRef} label="MarketWatch"  color="text-sky-500"     className="border-sky-500/40">
+                <LineChart className="w-4 h-4 text-sky-500" />
+              </SourceNode>
+              <SourceNode ref={yahooRef}       label="Yahoo Finance" color="text-purple-500" className="border-purple-500/40">
+                <BarChart2 className="w-4 h-4 text-purple-500" />
               </SourceNode>
             </div>
 
@@ -170,15 +172,17 @@ export function DataPipeline() {
             </div>
           </div>
 
-          {/* Source → Aggregator Beams */}
-          <AnimatedBeam containerRef={containerRef} fromRef={redditRef}      toRef={communityAggRef} curvature={-30} duration={4}   gradientStartColor="#f97316" gradientStopColor="#f97316" />
-          <AnimatedBeam containerRef={containerRef} fromRef={googleNewsRef}  toRef={newsAggRef}      curvature={-20} duration={4.2} gradientStartColor="#3b82f6" gradientStopColor="#3b82f6" />
-          <AnimatedBeam containerRef={containerRef} fromRef={cnbcRef}        toRef={newsAggRef}      curvature={-5}  duration={3.8} gradientStartColor="#ef4444" gradientStopColor="#3b82f6" />
-          <AnimatedBeam containerRef={containerRef} fromRef={marketwatchRef} toRef={financeAggRef}   curvature={5}   duration={4.5} gradientStartColor="#0ea5e9" gradientStopColor="#a855f7" />
-          <AnimatedBeam containerRef={containerRef} fromRef={yahooRef}       toRef={financeAggRef}   curvature={20}  duration={4}   gradientStartColor="#a855f7" gradientStopColor="#a855f7" />
-          <AnimatedBeam containerRef={containerRef} fromRef={reutersRef}     toRef={newsAggRef}      curvature={10}  duration={5}   gradientStartColor="#6b7280" gradientStopColor="#3b82f6" />
-          <AnimatedBeam containerRef={containerRef} fromRef={koreanRef}       toRef={newsAggRef}      curvature={30}  duration={4.8} gradientStartColor="#f43f5e" gradientStopColor="#3b82f6" />
-          <AnimatedBeam containerRef={containerRef} fromRef={searchRef}       toRef={newsAggRef}      curvature={45}  duration={5.2} gradientStartColor="#10b981" gradientStopColor="#3b82f6" />
+          {/* Source → Aggregator Beams (Hidden on Mobile) */}
+          <AnimatedBeam className="hidden md:block" containerRef={containerRef} fromRef={googleNewsRef}  toRef={newsAggRef}      curvature={-30} duration={4.2} gradientStartColor="#3b82f6" gradientStopColor="#3b82f6" />
+          <AnimatedBeam className="hidden md:block" containerRef={containerRef} fromRef={cnbcRef}        toRef={newsAggRef}      curvature={-15} duration={3.8} gradientStartColor="#ef4444" gradientStopColor="#3b82f6" />
+          <AnimatedBeam className="hidden md:block" containerRef={containerRef} fromRef={reutersRef}     toRef={newsAggRef}      curvature={0}   duration={5}   gradientStartColor="#6b7280" gradientStopColor="#3b82f6" />
+          <AnimatedBeam className="hidden md:block" containerRef={containerRef} fromRef={koreanRef}       toRef={newsAggRef}      curvature={15}  duration={4.8} gradientStartColor="#f43f5e" gradientStopColor="#3b82f6" />
+          <AnimatedBeam className="hidden md:block" containerRef={containerRef} fromRef={searchRef}       toRef={newsAggRef}      curvature={30}  duration={5.2} gradientStartColor="#10b981" gradientStopColor="#3b82f6" />
+          
+          <AnimatedBeam className="hidden md:block" containerRef={containerRef} fromRef={redditRef}      toRef={communityAggRef} curvature={0}   duration={4}   gradientStartColor="#f97316" gradientStopColor="#f97316" />
+          
+          <AnimatedBeam className="hidden md:block" containerRef={containerRef} fromRef={marketwatchRef} toRef={financeAggRef}   curvature={-15} duration={4.5} gradientStartColor="#0ea5e9" gradientStopColor="#a855f7" />
+          <AnimatedBeam className="hidden md:block" containerRef={containerRef} fromRef={yahooRef}       toRef={financeAggRef}   curvature={15}  duration={4}   gradientStartColor="#a855f7" gradientStopColor="#a855f7" />
 
           {/* Aggregator → AI Beams */}
           <AnimatedBeam containerRef={containerRef} fromRef={newsAggRef}      toRef={aiRef} curvature={-35} duration={5} />
