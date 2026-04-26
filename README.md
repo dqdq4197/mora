@@ -30,7 +30,7 @@ Mora는 매일 아침 수백 개의 글로벌 금융 뉴스, 커뮤니티 트렌
 - **AI Backend**: [AI SDK (Vercel)](https://sdk.vercel.ai/), [Google Gemini Pro](https://deepmind.google/technologies/gemini/)
 - **Data Gathering**: [RSS Parser](https://www.npmjs.com/package/rss-parser)
 - **State & Feedback**: [Sonner](https://sonner.stevenly.me/)
-- **Storage**: [Local Filesystem Database (JSON)](/src/lib/radar-db.ts) (Production: Persistent Database support included)
+- **Storage**: [Vercel KV (Redis)](https://vercel.com/docs/storage/vercel-kv)
 
 ## 📡 Pipeline Architecture
 
