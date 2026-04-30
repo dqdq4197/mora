@@ -1,16 +1,26 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Search, Loader2, TrendingUp, TrendingDown, Info, ExternalLink, X, ChevronDown, ChevronUp } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import React, { useState } from "react";
+import {
+  Search,
+  Loader2,
+  TrendingUp,
+  TrendingDown,
+  Info,
+  ExternalLink,
+  X,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface AnalysisResult {
   keyword: string;
   summary: string;
-  shortTermOutlook: { view: 'bull' | 'bear' | 'neutral'; description: string };
-  longTermOutlook: { view: 'bull' | 'bear' | 'neutral'; description: string };
+  shortTermOutlook: { view: "bull" | "bear" | "neutral"; description: string };
+  longTermOutlook: { view: "bull" | "bear" | "neutral"; description: string };
   keyPoints: string[];
   sentimentScore: number;
   sources: { title: string; url: string }[];
@@ -18,7 +28,7 @@ interface AnalysisResult {
 }
 
 export function SearchAnalysis() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -33,22 +43,28 @@ export function SearchAnalysis() {
     setResult(null);
 
     try {
-      const res = await fetch(`/api/analyze/keyword?q=${encodeURIComponent(query)}`);
+      const res = await fetch(
+        `/api/analyze/keyword?q=${encodeURIComponent(query)}`,
+      );
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || '분석에 실패했습니다.');
+        throw new Error(data.error || "분석에 실패했습니다.");
       }
       const data = await res.json();
       setResult(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("알 수 없는 에러가 발생했어요");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto mb-2">
+    <div className="w-full mx-auto mb-2">
       <form onSubmit={handleSearch} className="relative group">
         <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
           {loading ? (
@@ -65,12 +81,12 @@ export function SearchAnalysis() {
           onChange={(e) => setQuery(e.target.value)}
           disabled={loading}
         />
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           disabled={loading || !query.trim()}
           className="absolute right-2 top-2 h-10 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl px-6 transition-all shadow-lg shadow-primary/20"
         >
-          {loading ? '분석 중...' : 'AI 분석'}
+          {loading ? "분석 중..." : "AI 분석"}
         </Button>
       </form>
 
@@ -84,9 +100,12 @@ export function SearchAnalysis() {
       {result && (
         <div className="mt-8 bg-card/80 dark:bg-slate-900/80 border border-border rounded-3xl p-8 shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300 backdrop-blur-md">
           <div className="absolute top-0 right-0 p-4">
-             <button onClick={() => setResult(null)} className="p-2 hover:bg-accent rounded-full text-muted-foreground transition-colors">
-                <X className="w-5 h-5" />
-             </button>
+            <button
+              onClick={() => setResult(null)}
+              className="p-2 hover:bg-accent rounded-full text-muted-foreground transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
 
           {result.disclaimer && (
@@ -95,19 +114,23 @@ export function SearchAnalysis() {
               {result.disclaimer}
             </div>
           )}
-          
+
           <div className="flex flex-col md:flex-row md:items-center gap-4 mb-8">
             <Badge className="w-fit bg-primary/20 text-primary border-primary/30 px-3 py-1 text-sm font-semibold uppercase tracking-wider">
               AI Deep Report
             </Badge>
             <h2 className="text-3xl font-black text-foreground decoration-primary underline-offset-8">
-              "{result.keyword}" 심층 분석
+              &quot;{result.keyword}&quot; 심층 분석
             </h2>
             <div className="ml-auto flex items-center gap-3 bg-secondary/50 px-4 py-2 rounded-2xl border border-border">
-               <span className="text-xs text-muted-foreground font-bold uppercase">Sentiment Score</span>
-               <span className={`text-2xl font-black ${result.sentimentScore > 50 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-                 {result.sentimentScore}
-               </span>
+              <span className="text-xs text-muted-foreground font-bold uppercase">
+                Sentiment Score
+              </span>
+              <span
+                className={`text-2xl font-black ${result.sentimentScore > 50 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}
+              >
+                {result.sentimentScore}
+              </span>
             </div>
           </div>
 
@@ -124,61 +147,92 @@ export function SearchAnalysis() {
               </section>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className={`p-6 rounded-2xl border ${result.shortTermOutlook.view === 'bull' ? 'bg-emerald-500/5 border-emerald-500/20' : result.shortTermOutlook.view === 'bear' ? 'bg-rose-500/5 border-rose-500/20' : 'bg-muted/50 border-border'}`}>
-                   <div className="flex items-center gap-2 mb-4">
-                      {result.shortTermOutlook.view === 'bull' ? <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> : result.shortTermOutlook.view === 'bear' ? <TrendingDown className="w-5 h-5 text-rose-600 dark:text-rose-400" /> : <Info className="w-5 h-5 text-muted-foreground" />}
-                      <span className="font-bold text-foreground italic">Short-term (1W)</span>
-                   </div>
-                   <p className="text-sm text-muted-foreground leading-relaxed">
-                     {result.shortTermOutlook.description}
-                   </p>
+                <div
+                  className={`p-6 rounded-2xl border ${result.shortTermOutlook.view === "bull" ? "bg-emerald-500/5 border-emerald-500/20" : result.shortTermOutlook.view === "bear" ? "bg-rose-500/5 border-rose-500/20" : "bg-muted/50 border-border"}`}
+                >
+                  <div className="flex items-center gap-2 mb-4">
+                    {result.shortTermOutlook.view === "bull" ? (
+                      <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                    ) : result.shortTermOutlook.view === "bear" ? (
+                      <TrendingDown className="w-5 h-5 text-rose-600 dark:text-rose-400" />
+                    ) : (
+                      <Info className="w-5 h-5 text-muted-foreground" />
+                    )}
+                    <span className="font-bold text-foreground italic">
+                      Short-term (1W)
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {result.shortTermOutlook.description}
+                  </p>
                 </div>
- 
-                <div className={`p-6 rounded-2xl border ${result.longTermOutlook.view === 'bull' ? 'bg-emerald-500/5 border-emerald-500/20' : result.longTermOutlook.view === 'bear' ? 'bg-rose-500/5 border-rose-500/20' : 'bg-muted/50 border-border'}`}>
-                   <div className="flex items-center gap-2 mb-4">
-                      {result.longTermOutlook.view === 'bull' ? <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> : result.longTermOutlook.view === 'bear' ? <TrendingDown className="w-5 h-5 text-rose-600 dark:text-rose-400" /> : <Info className="w-5 h-5 text-muted-foreground" />}
-                      <span className="font-bold text-foreground italic">Long-term (1M+)</span>
-                   </div>
-                   <p className="text-sm text-muted-foreground leading-relaxed">
-                     {result.longTermOutlook.description}
-                   </p>
+
+                <div
+                  className={`p-6 rounded-2xl border ${result.longTermOutlook.view === "bull" ? "bg-emerald-500/5 border-emerald-500/20" : result.longTermOutlook.view === "bear" ? "bg-rose-500/5 border-rose-500/20" : "bg-muted/50 border-border"}`}
+                >
+                  <div className="flex items-center gap-2 mb-4">
+                    {result.longTermOutlook.view === "bull" ? (
+                      <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                    ) : result.longTermOutlook.view === "bear" ? (
+                      <TrendingDown className="w-5 h-5 text-rose-600 dark:text-rose-400" />
+                    ) : (
+                      <Info className="w-5 h-5 text-muted-foreground" />
+                    )}
+                    <span className="font-bold text-foreground italic">
+                      Long-term (1M+)
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {result.longTermOutlook.description}
+                  </p>
                 </div>
               </div>
             </div>
 
             <div className="lg:col-span-4 space-y-8">
               <section>
-                <h4 className="text-sm font-bold text-muted-foreground mb-4 uppercase tracking-[0.2em]">Key Insights</h4>
+                <h4 className="text-sm font-bold text-muted-foreground mb-4 uppercase tracking-[0.2em]">
+                  Key Insights
+                </h4>
                 <ul className="space-y-3">
                   {result.keyPoints.map((point, i) => (
-                    <li key={i} className="flex items-start gap-3 text-sm text-foreground/90 bg-secondary/50 p-3 rounded-xl border border-border shadow-sm dark:shadow-none">
-                       <span className="text-primary font-bold">0{i+1}</span>
-                       {point}
+                    <li
+                      key={i}
+                      className="flex items-start gap-3 text-sm text-foreground/90 bg-secondary/50 p-3 rounded-xl border border-border shadow-sm dark:shadow-none"
+                    >
+                      <span className="text-primary font-bold">0{i + 1}</span>
+                      {point}
                     </li>
                   ))}
                 </ul>
               </section>
 
               <section>
-                <button 
+                <button
                   onClick={() => setShowSources(!showSources)}
                   className="w-full flex items-center justify-between text-sm font-bold text-muted-foreground mb-4 uppercase tracking-[0.2em] hover:text-primary transition-colors group"
                 >
                   Evidence Support
-                  {showSources ? <ChevronUp className="w-4 h-4 text-primary" /> : <ChevronDown className="w-4 h-4 group-hover:text-primary" />}
+                  {showSources ? (
+                    <ChevronUp className="w-4 h-4 text-primary" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4 group-hover:text-primary" />
+                  )}
                 </button>
-                
+
                 {showSources && (
                   <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
                     {result.sources.map((source, i) => (
-                      <a 
-                        key={i} 
-                        href={source.url} 
-                        target="_blank" 
+                      <a
+                        key={i}
+                        href={source.url}
+                        target="_blank"
                         rel="noreferrer"
                         className="flex items-center justify-between p-3 rounded-xl bg-background/60 border border-border hover:border-primary/40 hover:bg-secondary/50 transition-all group/link shadow-sm dark:shadow-none"
                       >
-                        <span className="text-xs text-muted-foreground truncate max-w-[200px]">{source.title}</span>
+                        <span className="text-xs text-muted-foreground truncate max-w-[200px]">
+                          {source.title}
+                        </span>
                         <ExternalLink className="w-3 h-3 text-muted-foreground/60 group-hover/link:text-primary transition-colors" />
                       </a>
                     ))}
